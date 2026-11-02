@@ -1,14 +1,3 @@
-<div align="center">
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="brand/lockup-dark.svg">
-  <img src="brand/lockup-light.svg" alt="etyms, a museum of words" width="420">
-</picture>
-
-</div>
-
----
-
 Dear visitor,
 
 Welcome in. Please, take your time.
