@@ -1,0 +1,1555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>etyms</title>
+<meta name="description" content="A museum of words. Every word is an artifact; slide to travel back to where it began.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.55' stop-color='%23f0dcb4'/%3E%3Cstop offset='1' stop-color='%23b58a5a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23000'/%3E%3Ctext x='32' y='47' text-anchor='middle' font-family='Georgia,serif' font-size='52' fill='url(%23g)'%3Ee%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://en.wiktionary.org" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Geist+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif&family=Noto+Serif&display=swap">
+<style>
+/* Layout: one lit vitrine on true black. The word is the exhibit; the light inside the case
+   drifts and shifts from daylight (today) to sepia (the deep past) as you travel. */
+:root {
+  --black: #000000;
+  --case: #060606;
+  --hair: rgba(255, 255, 255, .09);
+  --text: #f4f2ee;
+  --muted: #9a968f;
+  --faint: #5d5a55;
+  --font-word: "Instrument Serif", "Noto Serif", Georgia, serif;
+  --font-text: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --c1: 196, 214, 255; --c2: 244, 228, 198; --a: .16;
+  --x1: 50%; --y1: 0%; --x2: 40%; --y2: 0%; --x3: 60%;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { background: var(--black); }
+body {
+  margin: 0; min-height: 100vh; color: var(--text);
+  font: 400 15px/1.6 var(--font-text); -webkit-font-smoothing: antialiased;
+  display: flex; flex-direction: column; align-items: center;
+  padding-block: clamp(26px, 6vh, 60px) 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 1px solid rgba(var(--c1), .8); outline-offset: 3px; }
+
+/* ---------- masthead: the e, then the wordmark with its line beneath ---------- */
+.mast { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; text-decoration: none; color: var(--text); }
+.mark-e {
+  width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; position: relative;
+  background: radial-gradient(120% 120% at 30% 0%, #1c1a17, #050505 70%);
+  border: 1px solid var(--hair);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 8px 24px rgba(0, 0, 0, .8);
+}
+.mark-e span {
+  font: 600 40px/1 "Cormorant Garamond", "Cormorant", Garamond, Georgia, serif; margin-top: -7px;
+  background: linear-gradient(135deg, #ffffff 15%, #f0dcb4 55%, #b58a5a 95%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.mast .words { display: flex; flex-direction: column; gap: 6px; }
+.mast b {
+  font: 600 36px/0.85 "Cormorant Garamond", "Cormorant", Garamond, Georgia, serif; letter-spacing: .01em;
+  font-feature-settings: "kern" 1, "liga" 1;
+  background: linear-gradient(180deg, #ffffff 30%, #e9dcc3 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 18px rgba(240, 220, 180, .14));
+  padding-bottom: 2px;
+}
+.mast small { font: 400 10px/1 var(--font-mono); color: var(--muted); letter-spacing: .2em; text-transform: uppercase; padding-left: 2px; }
+
+/* ---------- the foyer: a painting chosen for what's being written ---------- */
+.foyer { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.foyer .now { font: 400 10.5px/1 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
+.frame {
+  position: relative; display: grid; place-items: center;
+  width: min(560px, 100%); aspect-ratio: 404 / 296; height: auto;
+}
+.frame img {
+  grid-area: 1 / 1; max-height: 100%; max-width: min(100%, 520px); object-fit: contain; display: block;
+  border: 1px solid rgba(255, 255, 255, .08);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, .9), 0 0 0 6px rgba(255, 255, 255, .015);
+  opacity: 0; transition: opacity .9s ease;
+}
+.frame img.shown, .frame svg.shown { opacity: 1; }
+.frame svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; cursor: pointer; opacity: 0; transition: opacity .9s ease; }
+.frame .wait { grid-area: 1 / 1; width: 60%; max-width: 300px; height: 80%; border: 1px solid var(--hair); background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.04) 50%, transparent 70%) 0 0 / 300% 100%; animation: sheen 1.6s linear infinite; }
+@keyframes sheen { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+.label-card { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; max-width: 52ch; min-height: 60px; }
+.label-card .t { font: 500 14px/1.35 var(--font-text); }
+.label-card .m { font: 400 12px/1.4 var(--font-mono); color: var(--muted); letter-spacing: .02em; }
+.label-card .s { font: 400 10.5px/1.4 var(--font-mono); color: var(--faint); letter-spacing: .04em; }
+.label-card .s a { color: var(--faint); text-underline-offset: 3px; }
+.foyer .invite { font: 400 15px/1.55 var(--font-text); color: var(--muted); text-align: center; max-width: 42ch; margin: 0; }
+
+.colophon {
+  width: 100%; max-width: 800px; margin-top: 40px; padding: 26px 16px 8px;
+  border-top: 1px solid var(--hair);
+  font: 400 13.5px/1.6 var(--font-mono); letter-spacing: .1em; text-transform: lowercase; color: var(--muted); text-align: center;
+}
+.colophon a { color: var(--text); text-decoration: none; border-bottom: 1px solid rgba(var(--c1), .4); padding-bottom: 1px; transition: border-color .2s; }
+.colophon a:hover { border-color: rgba(var(--c1), .9); }
+
+/* ---------- the vitrine ---------- */
+.case {
+  position: relative; isolation: isolate; overflow: hidden;
+  width: 100%; max-width: 800px;
+  background: var(--case); border: 1px solid var(--hair); border-radius: 28px;
+  padding: clamp(24px, 5vw, 44px) clamp(18px, 6vw, 60px) clamp(24px, 4vw, 34px);
+  display: flex; flex-direction: column; align-items: center; gap: 24px;
+}
+.aura {
+  position: absolute; left: -15%; right: -15%; top: -30%; height: 85%; z-index: -1; pointer-events: none;
+  filter: blur(36px);
+  -webkit-mask-image: linear-gradient(#000 35%, transparent);
+  mask-image: linear-gradient(#000 35%, transparent);
+  background:
+    radial-gradient(28% 50% at var(--x1) var(--y1), rgba(var(--c1), var(--a)), transparent 70%),
+    radial-gradient(24% 44% at var(--x2) var(--y2), rgba(var(--c2), calc(var(--a) * .85)), transparent 70%),
+    radial-gradient(40% 46% at var(--x3) 22%, rgba(var(--c1), calc(var(--a) * .55)), transparent 72%);
+}
+.case::after {
+  content: ""; position: absolute; left: 10%; right: 10%; top: 0; height: 1px; z-index: -1;
+  background: linear-gradient(90deg, transparent, rgba(var(--c1), calc(var(--a) * 3)), transparent);
+}
+
+/* search */
+.search { position: relative; width: min(560px, 100%); z-index: 5; }
+.search label { position: absolute; left: -9999px; }
+.search input {
+  width: 100%; border: 1px solid var(--hair); outline: none; border-radius: 999px;
+  background: rgba(0, 0, 0, .5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  color: var(--text); font: 400 17px/1 var(--font-text); text-align: center; padding: 17px 64px;
+  transition: border-color .2s;
+}
+.search input::placeholder { color: var(--faint); }
+.search input:focus-visible { border-color: rgba(var(--c1), .55); outline: none; }
+.search input::-webkit-search-cancel-button { display: none; }
+.shuffle {
+  position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 40px; border-radius: 50%; border: 0; background: transparent; cursor: pointer;
+  color: var(--faint); display: grid; place-items: center; transition: color .2s, background .2s;
+}
+.shuffle:hover { color: var(--text); background: rgba(255, 255, 255, .06); }
+.shuffle svg { width: 19px; height: 19px; }
+.go {
+  position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+  width: 42px; height: 42px; padding: 0; justify-content: center; border-radius: 50%; border: 0; cursor: pointer;
+  background: transparent; color: var(--muted); display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: inset 0 0 0 1px var(--hair);
+  font: 500 14px/1 var(--font-text); transition: background .25s, color .25s, box-shadow .25s, transform .15s;
+}
+.go:hover { color: var(--text); background: rgba(255, 255, 255, .05); }
+.search.ready .go { color: var(--text); background: rgba(var(--c1), .12); box-shadow: inset 0 0 0 1px rgba(var(--c1), .45); }
+.search.ready .go:hover { background: rgba(var(--c1), .2); }
+.go:active { transform: translateY(-50%) scale(.97); }
+.go svg { width: 18px; height: 18px; }
+.go:focus-visible { outline: 2px solid rgba(var(--c1), .9); outline-offset: 3px; }
+.shuffle.rolling svg { animation: roll .6s cubic-bezier(.3, .7, .3, 1); }
+@keyframes roll { 0% { transform: rotate(0) scale(1); } 50% { transform: rotate(200deg) scale(.8); } 100% { transform: rotate(360deg) scale(1); } }
+.recent {
+  position: absolute; left: 0; right: 0; top: calc(100% + 8px);
+  background: rgba(14, 14, 14, .96); border: 1px solid var(--hair); border-radius: 18px;
+  padding: 12px; display: flex; flex-direction: column; gap: 8px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .8);
+}
+.recent small { font: 400 10px/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); padding-left: 4px; }
+.recent div { display: flex; flex-wrap: wrap; gap: 6px; }
+.recent button { border: 1px solid var(--hair); background: transparent; border-radius: 999px; padding: 6px 12px; cursor: pointer; font: 400 16px/1 var(--font-word); }
+.recent button:hover { background: rgba(255, 255, 255, .06); }
+
+/* the exhibit: drag it sideways to travel too */
+.exhibit {
+  display: grid; place-items: center; width: 100%; height: clamp(84px, 15vw, 118px);
+  --box: min(100vw - 32px, 800px);
+  touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none;
+}
+.exhibit.dragging { cursor: grabbing; }
+.exhibit span {
+  grid-area: 1 / 1; white-space: nowrap; line-height: 1;
+  font: 400 min(5.4rem, calc(var(--box) / (var(--len, 5) * 0.5 + 1.6))) / 1 var(--font-word);
+  letter-spacing: -0.01em; color: var(--word, #fff);
+  will-change: opacity, filter, transform;
+}
+.exhibit .ast { color: rgb(var(--c1)); margin-right: .04em; }
+.exhibit.pending span { animation: breathe 1.8s ease-in-out infinite; }
+@keyframes breathe { 0%, 100% { opacity: .25; } 50% { opacity: .6; } }
+
+/* placard */
+.placard { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; min-height: 62px; }
+.placard .lang { font: 500 14px/1.2 var(--font-text); }
+.placard .era { font: 400 12px/1.2 var(--font-mono); color: var(--muted); letter-spacing: .03em; }
+.placard .note { font: 400 15px/1.5 var(--font-text); color: var(--muted); max-width: 54ch; }
+.placard .acc { font: 400 10.5px/1 var(--font-mono); color: var(--faint); letter-spacing: .1em; text-transform: uppercase; margin-top: 2px; }
+
+/* ---------- the timeline ---------- */
+.travel { width: min(580px, 100%); display: flex; flex-direction: column; gap: 4px; }
+.hint {
+  align-self: center; display: flex; align-items: center; gap: 8px;
+  font: 400 11px/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  transition: opacity .4s;
+}
+.hint svg { width: 16px; height: 10px; animation: nudge 1.6s ease-in-out infinite; }
+.hint.gone { opacity: 0; pointer-events: none; }
+@keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-5px); } }
+.timeline {
+  position: relative; width: 100%; height: 62px;
+  touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; outline: none;
+}
+.timeline.dragging { cursor: grabbing; }
+.timeline .line { position: absolute; left: 14px; right: 14px; top: 22px; height: 1px; background: var(--hair); }
+.timeline .trail { position: absolute; left: 0; top: 0; height: 1px; width: 0; background: linear-gradient(90deg, rgba(var(--c1), .1), rgba(var(--c1), .85)); }
+.timeline .marks { position: absolute; left: 14px; right: 14px; top: 18px; height: 40px; pointer-events: none; }
+.mark { position: absolute; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.mark i { width: 1px; height: 9px; background: var(--faint); display: block; }
+.mark b { font: 400 10.5px/1 var(--font-mono); letter-spacing: .08em; color: var(--faint); white-space: nowrap; transition: color .25s; font-weight: 400; }
+.mark.on b { color: var(--text); }
+.thumb {
+  position: absolute; top: 13px; left: 14px; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%;
+  background: #fff; pointer-events: none;
+  box-shadow: 0 0 0 5px rgba(var(--c1), .14), 0 0 24px 3px rgba(var(--c1), .5);
+  transition: transform .25s cubic-bezier(.2, .8, .2, 1);
+}
+.timeline.dragging .thumb { transform: scale(1.3); }
+.timeline.invite .thumb { animation: invite 1.6s ease-in-out infinite; }
+@keyframes invite { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-9px); } }
+.timeline:focus-visible .thumb { box-shadow: 0 0 0 5px rgba(var(--c1), .3), 0 0 0 7px rgba(var(--c1), .75); }
+.ends { display: flex; justify-content: space-between; margin-top: -8px; padding: 0 2px; font: 400 10.5px/1 var(--font-mono); color: var(--faint); letter-spacing: .1em; text-transform: uppercase; }
+
+/* ---------- the plaque ---------- */
+.plaque {
+  position: relative; width: 100%; max-width: 580px; border-radius: 16px;
+  padding: 22px clamp(18px, 4vw, 30px) 18px;
+  background: linear-gradient(155deg, #161616 0%, #0c0c0c 55%, #0a0a0a 100%);
+  box-shadow:
+    12px 14px 28px rgba(0, 0, 0, .95),
+    -7px -7px 18px rgba(255, 255, 255, .04),
+    inset 0 1px 0 rgba(255, 255, 255, .08),
+    inset 0 -1px 0 rgba(0, 0, 0, .7);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.plaque .screw { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #3a3a3a, #121212 70%); box-shadow: 0 1px 0 rgba(255, 255, 255, .06); }
+.plaque .screw:nth-child(1) { top: 10px; left: 10px; } .plaque .screw:nth-child(2) { top: 10px; right: 10px; }
+.plaque .screw:nth-child(3) { bottom: 10px; left: 10px; } .plaque .screw:nth-child(4) { bottom: 10px; right: 10px; }
+.engraved { font: 500 10.5px/1 var(--font-mono); letter-spacing: .2em; text-transform: uppercase; color: #4b4843; text-shadow: 0 1px 0 rgba(255, 255, 255, .07), 0 -1px 0 rgba(0, 0, 0, .9); text-align: center; }
+.plaque p { margin: 0; color: #c9c5be; font: 400 15px/1.65 var(--font-text); text-align: center; }
+.plaque p.clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.plaque .kin { font-size: 13.5px; color: var(--muted); }
+.plaque .kin span { color: #d8d4cd; }
+.plaque .row { display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; }
+.press {
+  border: 0; cursor: pointer; border-radius: 999px; padding: 8px 16px;
+  background: linear-gradient(155deg, #171717, #0d0d0d); color: var(--muted);
+  font: 500 11px/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase;
+  box-shadow: 4px 5px 10px rgba(0, 0, 0, .9), -3px -3px 8px rgba(255, 255, 255, .035), inset 0 1px 0 rgba(255, 255, 255, .07);
+  transition: box-shadow .15s, color .15s;
+}
+.press:hover { color: var(--text); }
+.press:active, .press[aria-expanded="true"] { box-shadow: inset 3px 3px 7px rgba(0, 0, 0, .9), inset -2px -2px 6px rgba(255, 255, 255, .04); color: var(--text); }
+.credit { font: 400 10.5px/1.4 var(--font-mono); color: var(--faint); letter-spacing: .04em; text-align: center; }
+.credit a { color: var(--faint); text-underline-offset: 3px; }
+.credit a:hover { color: var(--muted); }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--hair); background: rgba(255, 255, 255, .03); cursor: pointer; border-radius: 999px;
+  padding: 11px 20px; font: 500 13.5px/1 var(--font-text); color: var(--text);
+  transition: background .2s, border-color .2s;
+}
+.btn svg { width: 14px; height: 14px; }
+.btn:hover { background: rgba(255, 255, 255, .07); }
+.btn.on { border-color: rgba(var(--c1), .5); background: rgba(var(--c1), .08); }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.status { margin: 0; text-align: center; color: var(--muted); font: 400 16px/1.55 var(--font-text); max-width: 44ch; }
+
+/* ---------- while the archive is searched ---------- */
+.dig { width: min(440px, 100%); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.progress { position: relative; width: 140px; height: 1px; background: var(--hair); overflow: hidden; }
+.progress::after { content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: -40%; background: linear-gradient(90deg, transparent, rgba(var(--c1), .9), transparent); animation: sweep 1.2s ease-in-out infinite; }
+@keyframes sweep { to { left: 100%; } }
+.dig .q { font: 400 15px/1.5 var(--font-text); color: var(--muted); text-align: center; }
+.dig .q strong { color: var(--text); font-weight: 500; }
+.choices { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.choice { border: 1px solid var(--hair); background: transparent; border-radius: 999px; padding: 8px 15px; cursor: pointer; font: 400 13.5px/1 var(--font-text); color: var(--text); transition: background .2s, border-color .2s; }
+.choice:hover { background: rgba(255, 255, 255, .06); }
+.choice[aria-pressed="true"] { border-color: rgba(var(--c1), .7); background: rgba(var(--c1), .1); }
+.choice:disabled { cursor: default; }
+.verdict { font: 500 15px/1.4 var(--font-text); min-height: 1.4em; text-align: center; }
+.verdict small { display: block; font: 400 12px var(--font-mono); color: var(--muted); letter-spacing: .04em; margin-top: 4px; }
+
+.tiles { display: flex; gap: 8px; }
+.tiles span { width: 46px; height: 46px; border: 1px solid var(--hair); border-radius: 10px; background: rgba(255, 255, 255, .02); }
+
+/* ---------- collection drawer ---------- */
+.collection { width: 100%; max-width: 800px; margin-top: 22px; }
+.drawer {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: none; border: 0; border-bottom: 1px solid var(--hair); padding: 14px 6px; cursor: pointer;
+  font: 400 11px/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+}
+.drawer:hover { color: var(--text); }
+.drawer .count { color: var(--text); margin-left: 8px; }
+.drawer svg { width: 12px; height: 12px; transition: transform .25s; }
+.drawer[aria-expanded="true"] svg { transform: rotate(180deg); }
+.shelf { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 6px 4px; }
+.chip { display: inline-flex; align-items: center; border: 1px solid var(--hair); border-radius: 999px; }
+.chip button { background: none; border: 0; cursor: pointer; }
+.chip .open { font: 400 18px/1 var(--font-word); padding: 8px 4px 8px 16px; }
+.chip .x { color: var(--faint); padding: 8px 12px 8px 6px; }
+.chip .x:hover { color: var(--text); }
+.empty { color: var(--faint); font-size: 13.5px; }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 12px);
+  background: #111; border: 1px solid var(--hair); color: var(--text); padding: 9px 18px; border-radius: 999px;
+  font-size: 13px; opacity: 0; transition: opacity .2s, transform .2s; pointer-events: none; z-index: 20;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 440px) { .search input { padding-right: 52px; padding-left: 50px; font-size: 15px; } }
+@media (max-width: 520px) { .mark b { font-size: 9px; letter-spacing: .04em; } .tiles span { width: 40px; height: 40px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<a class="mast" href="#" id="home" aria-label="etyms, a museum of words">
+  <span class="mark-e" aria-hidden="true"><span>e</span></span>
+  <span class="words"><b>etyms</b><small>a museum of words</small></span>
+</a>
+
+<main class="case" id="case">
+  <div class="aura" aria-hidden="true"></div>
+  <form class="search" id="searchForm" autocomplete="off">
+    <label for="q">Find a word</label>
+    <input id="q" type="search" placeholder="write a word, or “wordle”" spellcheck="false" autocapitalize="off" enterkeyhint="search">
+    <button class="shuffle" id="shuffle" type="button" aria-label="Let the curator pick a word" title="Let the curator pick">
+      <svg viewBox="0 0 18 18" fill="none"><rect x="2.5" y="2.5" width="13" height="13" rx="3.2" stroke="currentColor" stroke-width="1.3"/><circle cx="6.2" cy="6.2" r="1.15" fill="currentColor"/><circle cx="9" cy="9" r="1.15" fill="currentColor"/><circle cx="11.8" cy="11.8" r="1.15" fill="currentColor"/></svg>
+    </button>
+    <button class="go" type="submit" aria-label="Search" title="Search">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8.6" cy="8.6" r="5.6"/><path d="M12.8 12.8 17 17"/></svg>
+    </button>
+  </form>
+  <div id="stage" style="display:contents"></div>
+</main>
+
+<section class="collection">
+  <button class="drawer" id="drawer" type="button" aria-expanded="false" aria-controls="shelf">
+    <span>Saved journeys<span class="count" id="count">0</span></span>
+    <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+  </button>
+  <div class="shelf" id="shelf" hidden></div>
+</section>
+
+<footer class="colophon">made for the word, by <a href="https://bio.link/abcd" target="_blank" rel="noopener">abhiggt</a></footer>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  /* ======================= sources ======================= */
+  const API = "https://en.wiktionary.org/w/api.php";
+  // Open-source, MIT-licensed list of every Wordle answer by date, refreshed daily by a GitHub Action.
+  const WORDLE_SOURCES = [
+    "https://raw.githubusercontent.com/ramkrishna3245/wordle-answers/main/data/wordle-answers.json",
+    "https://cdn.jsdelivr.net/gh/ramkrishna3245/wordle-answers@main/data/wordle-answers.json"
+  ];
+  const SAVED = "etyms.saved.v3", CACHE = "etyms.cache.v4", DRAWER = "etyms.drawer",
+        RECENT = "etyms.recent", HINTED = "etyms.hinted";
+
+  const SURPRISE = ["salary","muscle","nice","silly","clue","disaster","companion","quarantine","sabotage","robot",
+    "avocado","berserk","nightmare","window","goodbye","hazard","jovial","lunatic","panic","sincere","tragedy",
+    "travel","sarcasm","whisky","algebra","candidate","escape","glamour","handicap","jeopardy","malaria","mortgage",
+    "nostril","orange","pedigree","shampoo","sinister","trivial","villain","wife","lord","lady","daisy","girl",
+    "bead","bonfire","tabby","umpire","apron","adder","nickname","muscle","pupil","dandelion","astonish"];
+
+  const ERAS = {
+    "English": "today", "Early Modern English": "c. 1500–1700", "Middle English": "c. 1100–1500",
+    "Old English": "c. 450–1100", "Proto-West Germanic": "c. 200–500 CE", "Proto-Germanic": "c. 500 BCE–200 CE",
+    "Proto-Indo-European": "c. 4500–2500 BCE", "Latin": "c. 75 BCE–200 CE", "Classical Latin": "c. 75 BCE–200 CE",
+    "Old Latin": "before 75 BCE", "Late Latin": "c. 200–600", "Vulgar Latin": "c. 200–800", "Medieval Latin": "c. 600–1500",
+    "New Latin": "after 1500", "Proto-Italic": "c. 1000 BCE", "Ancient Greek": "c. 800–300 BCE",
+    "Koine Greek": "c. 300 BCE–600 CE", "Byzantine Greek": "c. 600–1450", "Proto-Hellenic": "c. 2000 BCE",
+    "Old French": "c. 800–1350", "Anglo-Norman": "c. 1066–1400", "Old Northern French": "c. 900–1350",
+    "Middle French": "c. 1350–1600", "French": "1600–today", "Old Norse": "c. 700–1350",
+    "Old High German": "c. 750–1050", "Middle High German": "c. 1050–1350", "Old Saxon": "c. 800–1150",
+    "Middle Dutch": "c. 1150–1500", "Middle Low German": "c. 1200–1600", "Old Frisian": "c. 1150–1550",
+    "Old Irish": "c. 600–900", "Proto-Celtic": "c. 1300 BCE", "Italian": "1300–today", "Spanish": "1200–today",
+    "Old Spanish": "c. 900–1500", "Portuguese": "1200–today", "Dutch": "1500–today", "German": "1650–today",
+    "Sanskrit": "c. 1500–500 BCE", "Arabic": "c. 500–today", "Persian": "c. 800–today",
+    "Middle Persian": "c. 300 BCE–800 CE", "Hebrew": "c. 1000 BCE–today", "Hindi": "1600–today",
+    "Ottoman Turkish": "c. 1300–1928", "Old Occitan": "c. 1000–1500", "Old Italian": "c. 1000–1500"
+  };
+  const ABBR = {
+    "Proto-Indo-European": "PIE", "Proto-Germanic": "PGMC", "Proto-West Germanic": "PWGMC",
+    "Old English": "OE", "Middle English": "ME", "Early Modern English": "EMODE", "English": "ENG",
+    "Latin": "LAT", "Late Latin": "LL", "Medieval Latin": "ML", "Vulgar Latin": "VL", "New Latin": "NL", "Classical Latin": "LAT",
+    "Old Latin": "OLAT", "Ancient Greek": "GK", "Koine Greek": "KOINE", "Byzantine Greek": "BYZ", "Proto-Hellenic": "PHEL",
+    "Old French": "OF", "Anglo-Norman": "AN", "Old Northern French": "ONF", "Middle French": "MF", "French": "FR",
+    "Old Norse": "ON", "Old High German": "OHG", "Middle High German": "MHG", "Middle Dutch": "MDU",
+    "Middle Low German": "MLG", "Old Saxon": "OS", "Old Frisian": "OFRIS", "Proto-Italic": "PITAL", "Proto-Celtic": "PCELT",
+    "Old Irish": "OIR", "Sanskrit": "SKT", "Arabic": "AR", "Persian": "PERS", "Middle Persian": "MPERS", "Hebrew": "HEB",
+    "Italian": "IT", "Spanish": "SP", "Old Spanish": "OSP", "Portuguese": "PT", "Dutch": "DU", "German": "G", "Hindi": "HI"
+  };
+  const abbr = (n) => ABBR[n] || String(n || "").split(/[\s-]+/).filter(Boolean).map(w => w[0]).join("").slice(0, 4).toUpperCase() || "?";
+  const POS = /^(Noun|Verb|Adjective|Adverb|Pronoun|Preposition|Conjunction|Interjection|Determiner|Numeral|Particle|Proper noun|Phrase|Prefix|Suffix|Article|Contraction)$/;
+
+  /* Light of each age, oldest (0) to today (1): sepia, gold, ivory, daylight. No reds. */
+  const LIGHT = [[0, [176, 138, 92]], [0.35, [222, 186, 122]], [0.7, [242, 226, 194]], [1, [196, 214, 255]]];
+  /* The word ages from white to a light brown. */
+  const PATINA = [[0, [205, 176, 140]], [0.6, [236, 224, 206]], [1, [255, 255, 255]]];
+  function sample(stops, t) {
+    t = Math.max(0, Math.min(1, t));
+    for (let i = 1; i < stops.length; i++) {
+      if (t <= stops[i][0]) {
+        const [t0, a] = stops[i - 1], [t1, b] = stops[i], k = (t - t0) / (t1 - t0 || 1);
+        return a.map((v, j) => Math.round(v + (b[j] - v) * k));
+      }
+    }
+    return stops[stops.length - 1][1];
+  }
+
+  /* ======================= helpers ======================= */
+  const $ = (id) => document.getElementById(id);
+  // Text from the record: anything missing becomes empty, never the word "null".
+  const txt = (v) => (v === null || v === undefined || v === "null" || v === "undefined") ? "" : String(v).replace(/\s+/g, " ").trim();
+  const h = (tag, props = {}, ...kids) => {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(props)) {
+      if (k === "class") el.className = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else if (v !== undefined && v !== null && v !== false) el.setAttribute(k, v);
+    }
+    for (const kid of kids.flat()) if (kid !== null && kid !== undefined && kid !== false && kid !== "") el.append(kid);
+    return el;
+  };
+  const store = {
+    get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } }
+  };
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const stage = $("stage"), caseEl = $("case");
+  const wait = (ms) => new Promise(r => setTimeout(r, ms));
+  function toast(msg) {
+    const t = $("toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 1900);
+  }
+
+  // Every entry goes through here, whether fresh, cached or saved, so bad fields can't reach the screen.
+  function normalize(e) {
+    if (!e || !txt(e.title)) return null;
+    const title = txt(e.title);
+    const stages = (Array.isArray(e.stages) ? e.stages : [])
+      .map(s => ({ lang: txt(s?.lang) || "Unknown language", term: txt(s?.term), tr: txt(s?.tr), gloss: txt(s?.gloss), era: txt(s?.era) }))
+      .filter(s => s.term);
+    if (!stages.length || stages[stages.length - 1].lang !== "English") stages.push({ lang: "English", term: title, tr: "", gloss: "", era: "today" });
+    stages[stages.length - 1].term = title;
+    return {
+      title, stages,
+      prose: txt(e.prose), ipa: txt(e.ipa), pos: txt(e.pos), def: txt(e.def),
+      kin: (Array.isArray(e.kin) ? e.kin : []).map(k => ({ lang: txt(k?.lang), term: txt(k?.term) })).filter(k => k.lang && k.term)
+    };
+  }
+
+  /* ======================= the foyer: a painting for the word being written ======================= */
+  // Two open museum collections, both public domain and free to use:
+  //   1. Art Institute of Chicago API   2. The Metropolitan Museum of Art Collection API
+  const paintings = new Map();
+
+  async function fromChicago(q) {
+    const params = {
+      q,
+      query: { bool: { filter: [
+        { term: { is_public_domain: true } },
+        { range: { date_start: { gte: 1400, lte: 1650 } } },
+        { exists: { field: "image_id" } }
+      ] } },
+      fields: ["id", "title", "artist_title", "artist_display", "date_display", "image_id", "thumbnail", "classification_title"],
+      limit: 12
+    };
+    const r = await fetch(`https://api.artic.edu/api/v1/artworks/search?params=${encodeURIComponent(JSON.stringify(params))}`);
+    if (!r.ok) return null;
+    const j = await r.json();
+    const iiif = j?.config?.iiif_url || "https://www.artic.edu/iiif/2";
+    const list = (j.data || []).filter(d => d.image_id);
+    const hit = list.find(d => /paint/i.test(d.classification_title || "")) || list[0];
+    if (!hit) return null;
+    return {
+      title: txt(hit.title), artist: txt(hit.artist_title) || txt(hit.artist_display).split("\n")[0],
+      date: txt(hit.date_display), alt: txt(hit.thumbnail?.alt_text),
+      src: `${iiif}/${hit.image_id}/full/843,/0/default.jpg`,
+      href: `https://www.artic.edu/artworks/${hit.id}`, museum: "the Art Institute of Chicago"
+    };
+  }
+  async function fromTheMet(q) {
+    const base = "https://collectionapi.metmuseum.org/public/collection/v1";
+    const r = await fetch(`${base}/search?hasImages=true&dateBegin=1400&dateEnd=1650&q=${encodeURIComponent(q)}`);
+    if (!r.ok) return null;
+    const ids = ((await r.json()).objectIDs || []).slice(0, 8);
+    for (const id of ids) {
+      try {
+        const o = await (await fetch(`${base}/objects/${id}`)).json();
+        if (o.isPublicDomain && o.primaryImageSmall && /paint/i.test(`${o.classification} ${o.objectName}`)) {
+          return { title: txt(o.title), artist: txt(o.artistDisplayName), date: txt(o.objectDate), alt: txt(o.title),
+                   src: o.primaryImageSmall, href: txt(o.objectURL) || "https://www.metmuseum.org/art/collection",
+                   museum: "The Metropolitan Museum of Art" };
+        }
+      } catch {}
+    }
+    return null;
+  }
+  async function findPainting(q) {
+    const key = q.toLowerCase();
+    if (paintings.has(key)) return paintings.get(key);
+    let art = null;
+    for (const source of [fromChicago, fromTheMet]) {
+      try { art = await source(q); } catch { art = null; }
+      if (art) break;
+    }
+    if (art) paintings.set(key, art);
+    return art;
+  }
+
+  /* ======================= the writing desk: a quill writes "e" in the scripts behind our words ======================= */
+  // Each glyph is drawn on a 100×100 grid as the strokes a hand would make, in order.
+  const GLYPHS = [
+    { lang: "Phoenician", name: "he", ch: "𐤄", strokes: ["M66 18 L66 88", "M66 24 L34 34", "M66 42 L34 52", "M66 60 L34 70"] },
+    { lang: "Hebrew", name: "he", ch: "ה", strokes: ["M26 30 L70 30 C 75 30, 76 34, 76 40 L 76 84", "M36 48 L36 84"] },
+    { lang: "Ancient Greek", name: "epsilon", ch: "ε",
+      strokes: ["M68 46 C 60 37, 40 37, 40 50 C 40 58, 50 61, 59 60 C 45 60, 33 64, 33 72 C 33 85, 56 87, 71 76"] },
+    { lang: "Runic", name: "ehwaz", ch: "ᛖ", strokes: ["M30 86 L30 22 L50 46 L70 22 L70 86"] },
+    { lang: "Latin", name: "e", ch: "e",
+      strokes: ["M33 58 L70 58 C 70 44, 61 38, 52 38 C 40 38, 32 48, 32 60 C 32 74, 42 82, 54 82 C 62 82, 68 78, 71 72"] },
+    { lang: "Armenian", name: "yech", ch: "ե", strokes: ["M34 42 L34 66 C 34 80, 52 82, 60 68", "M60 26 L60 92"] },
+    { lang: "Georgian", name: "eni", ch: "ე",
+      strokes: ["M36 44 C 44 35, 63 36, 66 50 C 68 63, 56 69, 46 66", "M66 58 C 71 72, 60 84, 46 84 C 38 84, 32 80, 30 74"] },
+    { lang: "Sanskrit", name: "e", ch: "ए", strokes: ["M18 28 L84 28", "M66 28 L66 86", "M64 34 L40 50 C 33 56, 37 64, 46 64 C 54 64, 60 60, 66 55"] },
+    { lang: "Japanese", name: "e", ch: "え", strokes: ["M42 20 L56 28", "M30 42 L68 40 L33 82 C 43 71, 52 70, 56 78 C 60 86, 70 86, 78 80"] },
+    { lang: "Korean", name: "e", ch: "에",
+      strokes: ["M38 40 C 24 40, 21 64, 31 72 C 41 80, 52 66, 50 54 C 48 46, 44 40, 38 40", "M55 54 L66 54", "M66 24 L66 86", "M80 20 L80 90"] }
+  ];
+  const SVGNS = "http://www.w3.org/2000/svg";
+  let deskId = 0;
+
+  // The feather, barb by barb, in quill coordinates (nib at 0,0, feather along +x, gently curved).
+  function quillBarbs() {
+    let rnd = 11;
+    const rand = () => { rnd = (rnd * 16807) % 2147483647; return rnd / 2147483647; };
+    const yc = (x) => -16 * Math.pow(Math.max(0, x - 40) / 280, 2);        // the rachis bends as feathers do
+    const wU = (x) => 33 * Math.pow(Math.sin(Math.PI * Math.min(1, Math.max(0, (x - 64) / 250))), 0.72);
+    const wL = (x) => 0.55 * wU(x);
+    const notchU = new Set(), notchL = new Set();
+    for (let i = 0; i < 5; i++) notchU.add(Math.round(90 + rand() * 190));
+    for (let i = 0; i < 4; i++) notchL.add(Math.round(96 + rand() * 180));
+    const near = (set, x) => [...set].some(n => Math.abs(n - x) < 3);
+    let up = `M64 ${yc(64).toFixed(1)}`, low = `M72 ${yc(72).toFixed(1)}`;
+    for (let x = 64; x <= 314; x += 2) {
+      const w = wU(x) * (near(notchU, x) ? 0.42 : 1);
+      up += ` L${(x + w * 0.72).toFixed(1)} ${(yc(x) - w - 1).toFixed(1)}`;
+    }
+    up += ` L314 ${yc(314).toFixed(1)} Z`;
+    for (let x = 72; x <= 314; x += 2) {
+      const w = wL(x) * (near(notchL, x) ? 0.4 : 1);
+      low += ` L${(x + w * 0.72).toFixed(1)} ${(yc(x) + w + 1).toFixed(1)}`;
+    }
+    low += ` L314 ${yc(314).toFixed(1)} Z`;
+    let dark = "", light = "", band = "";
+    for (let x = 66; x <= 310; x += 1.05) {
+      const y0 = yc(x);
+      const mU = near(notchU, x) ? 0.42 : 0.84 + rand() * 0.18, mL = near(notchL, x) ? 0.4 : 0.84 + rand() * 0.18;
+      const u = wU(x) * mU, l = wL(x) * mL;
+      const seg = (w, side) => `M${x.toFixed(1)} ${(y0 + side).toFixed(1)} Q${(x + w * 0.28).toFixed(1)} ${(y0 + side * w * 0.58).toFixed(1)} ${(x + w * 0.72).toFixed(1)} ${(y0 + side * (w + 1)).toFixed(1)} `;
+      const line = seg(u, -1) + (x > 72 ? seg(l, 1) : "");
+      // soft umber bars across the vane, like a hawk's flight feather
+      const barred = Math.sin((x - 66) / 15.5 + Math.sin(x / 40) * 0.6) > 0.35 && x > 96;
+      if (barred) band += line;
+      else if (rand() < 0.55) dark += line; else light += line;
+    }
+    let fluff = "";
+    for (let i = 0; i < 12; i++) {
+      const x = 50 + rand() * 24, side = rand() < 0.5 ? -1 : 1, len = 7 + rand() * 14;
+      fluff += `M${x.toFixed(1)} ${(yc(x) + side).toFixed(1)} q${(len * 0.25).toFixed(1)} ${(side * len * (0.6 + rand() * 0.6)).toFixed(1)} ${(len * (0.6 + rand() * 0.5)).toFixed(1)} ${(side * len * (0.3 + rand() * 0.6)).toFixed(1)} `;
+    }
+    let rachis = `M58 ${(yc(58) - 2.4).toFixed(2)}`;
+    for (let x = 58; x <= 316; x += 6) rachis += ` L${x} ${(yc(x) - 2.4 + (x - 58) / 258 * 2.1).toFixed(2)}`;
+    for (let x = 316; x >= 58; x -= 6) rachis += ` L${x} ${(yc(x) + 2.4 - (x - 58) / 258 * 2.1).toFixed(2)}`;
+    rachis += " Z";
+    return { up, low, dark, light, band, fluff, rachis };
+  }
+  const QUILL = quillBarbs();
+
+  function writingDesk() {
+    const id = "d" + (++deskId);
+    const holder = document.createElement("div");
+    holder.innerHTML = `
+<svg xmlns="${SVGNS}" viewBox="34 -26 404 296" role="img" aria-label="A feather quill writing the letter e in the scripts of the world, beside an inkwell">
+  <defs>
+    <linearGradient id="${id}pap" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4e6c2"/><stop offset=".5" stop-color="#ead6a6"/><stop offset="1" stop-color="#d9bd86"/>
+    </linearGradient>
+    <linearGradient id="${id}pap2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d9c08a"/><stop offset="1" stop-color="#b8975e"/>
+    </linearGradient>
+    <filter id="${id}papyrus" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="4" result="edge"/>
+      <feDisplacementMap in="SourceGraphic" in2="edge" scale="6" xChannelSelector="R" yChannelSelector="G" result="sheet"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.3" numOctaves="2" seed="11" result="fh"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.3 0.006" numOctaves="2" seed="23" result="fv"/>
+      <feComposite in="fh" in2="fv" operator="arithmetic" k1="0" k2=".72" k3=".28" k4="0" result="fibre"/>
+      <feDiffuseLighting in="fibre" surfaceScale="0.85" diffuseConstant="1.12" lighting-color="#ffffff" result="relief">
+        <feDistantLight azimuth="225" elevation="58"/>
+      </feDiffuseLighting>
+      <feComposite in="relief" in2="sheet" operator="arithmetic" k1=".5" k2="0" k3=".55" k4="0" result="lit"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="3" seed="2" result="stain"/>
+      <feColorMatrix in="stain" type="matrix" values="0 0 0 0 .38  0 0 0 0 .25  0 0 0 0 .09  .75 0 0 0 -.42" result="stainc"/>
+      <feComposite in="stainc" in2="sheet" operator="in" result="stains"/>
+      <feMorphology in="sheet" operator="erode" radius="4" result="inner"/>
+      <feGaussianBlur in="inner" stdDeviation="7" result="innerSoft"/>
+      <feComposite in="sheet" in2="innerSoft" operator="out" result="rim"/>
+      <feColorMatrix in="rim" type="matrix" values="0 0 0 0 .3  0 0 0 0 .18  0 0 0 0 .06  0 0 0 .62 0" result="burnish"/>
+      <feMerge><feMergeNode in="lit"/><feMergeNode in="stains"/><feMergeNode in="burnish"/></feMerge>
+    </filter>
+    <filter id="${id}soft" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="${id}blur" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="3.2"/></filter>
+    <filter id="${id}bleed" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" seed="5" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="0.9" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation=".14"/>
+    </filter>
+    <filter id="${id}fiber" x="-5%" y="-10%" width="110%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9 .25" numOctaves="2" seed="8" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <linearGradient id="${id}vane" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d8cbb0"/><stop offset=".3" stop-color="#efe7d6"/><stop offset=".75" stop-color="#e9dec7"/><stop offset="1" stop-color="#c9b48d"/>
+    </linearGradient>
+    <linearGradient id="${id}upShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".7" stop-color="#7d6a4c" stop-opacity="0"/><stop offset="1" stop-color="#7d6a4c" stop-opacity=".3"/>
+    </linearGradient>
+    <linearGradient id="${id}lowShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5e4e36" stop-opacity=".38"/><stop offset=".5" stop-color="#5e4e36" stop-opacity=".2"/><stop offset="1" stop-color="#5e4e36" stop-opacity=".1"/>
+    </linearGradient>
+    <linearGradient id="${id}horn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f1e6cd"/><stop offset=".5" stop-color="#b3a07a"/><stop offset="1" stop-color="#ddcfae"/>
+    </linearGradient>
+    <linearGradient id="${id}glassFront" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#20231f"/><stop offset=".18" stop-color="#3b403a"/><stop offset=".3" stop-color="#121411"/>
+      <stop offset=".78" stop-color="#0a0b0a"/><stop offset="1" stop-color="#1b1e1a"/>
+    </linearGradient>
+    <linearGradient id="${id}glassSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2d322c"/><stop offset="1" stop-color="#0d0f0d"/>
+    </linearGradient>
+    <linearGradient id="${id}glassTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a6159"/><stop offset="1" stop-color="#1a1d19"/>
+    </linearGradient>
+    <linearGradient id="${id}brass" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5a4320"/><stop offset=".2" stop-color="#a88450"/><stop offset=".38" stop-color="#d6bd8a"/>
+      <stop offset=".55" stop-color="#8c6a38"/><stop offset=".85" stop-color="#b8975f"/><stop offset="1" stop-color="#4d3a1c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- a second sheet beneath, for depth -->
+  <g transform="rotate(-8.5 200 140)">
+    <rect x="70" y="26" width="246" height="232" rx="2" fill="#000" opacity=".7" filter="url(#${id}soft)" transform="translate(3 9)"/>
+    <rect x="66" y="20" width="246" height="232" rx="2" fill="url(#${id}pap2)" filter="url(#${id}papyrus)"/>
+  </g>
+  <!-- the sheet being written on, a little askew -->
+  <g transform="rotate(-3.5 190 135)">
+    <rect x="62" y="22" width="250" height="236" rx="3" fill="#000" opacity=".8" filter="url(#${id}soft)" transform="translate(5 11)"/>
+    <g filter="url(#${id}papyrus)">
+      <rect x="58" y="14" width="250" height="236" rx="2" fill="url(#${id}pap)"/>
+      <g opacity=".8">
+        <rect x="60" y="30" width="246" height="26" fill="#b08a4c" opacity=".14"/>
+        <rect x="60" y="82" width="246" height="22" fill="#fff4d8" opacity=".22"/>
+        <rect x="60" y="128" width="246" height="30" fill="#b08a4c" opacity=".12"/>
+        <rect x="60" y="182" width="246" height="20" fill="#fff4d8" opacity=".2"/>
+        <rect x="60" y="222" width="246" height="24" fill="#b08a4c" opacity=".13"/>
+        <rect x="104" y="16" width="20" height="232" fill="#a37f44" opacity=".07"/>
+        <rect x="190" y="16" width="26" height="232" fill="#a37f44" opacity=".06"/>
+        <rect x="262" y="16" width="18" height="232" fill="#fff4d8" opacity=".12"/>
+      </g>
+    </g>
+    <g class="ink" transform="translate(78 28) scale(2.1)" filter="url(#${id}bleed)"></g>
+  </g>
+
+  <!-- the inkwell: cut glass with a brass collar (back half, behind the quill) -->
+  <g transform="translate(352 220)">
+    <ellipse cx="3" cy="36" rx="38" ry="6" fill="#000" opacity=".85" filter="url(#${id}blur)"/>
+    <ellipse cx="0" cy="-8" rx="11" ry="3" fill="#6f5530"/>
+    <ellipse cx="0" cy="-7.8" rx="8.6" ry="2.2" fill="#020202"/>
+    <ellipse cx="2.6" cy="-7.4" rx="3.2" ry=".55" fill="#262a26"/>
+  </g>
+
+  <!-- the quill's shadow on the desk -->
+  <g class="shadow" filter="url(#${id}blur)">
+    <path d="M0 0 L66 -3 L300 -14 L310 0 L300 10 L66 3 Z" fill="#000"/>
+  </g>
+  <!-- the quill -->
+  <g class="quill">
+    <g filter="url(#${id}fiber)">
+      <path d="${QUILL.low}" fill="url(#${id}vane)"/>
+      <path d="${QUILL.low}" fill="url(#${id}lowShade)"/>
+      <path d="${QUILL.up}" fill="url(#${id}vane)"/>
+      <path d="${QUILL.up}" fill="url(#${id}upShade)"/>
+    </g>
+    <path d="${QUILL.band}" stroke="#6b5435" stroke-opacity=".5" stroke-width=".55" fill="none"/>
+    <path d="${QUILL.dark}" stroke="#8d7f66" stroke-opacity=".38" stroke-width=".4" fill="none"/>
+    <path d="${QUILL.light}" stroke="#fffaf0" stroke-opacity=".5" stroke-width=".36" fill="none"/>
+    <path d="${QUILL.fluff}" stroke="#ddd0b6" stroke-opacity=".7" stroke-width=".45" fill="none" stroke-linecap="round"/>
+    <path d="${QUILL.rachis}" fill="#eee5d2"/>
+    <path d="${QUILL.rachis}" fill="none" stroke="#8f8065" stroke-opacity=".55" stroke-width=".35"/>
+    <path d="M0 0 C 4 -0.7, 8 -1.2, 12 -1.5 L62 -2.8 L62 2.8 L12 1.5 C 8 1.2, 4 0.7, 0 0 Z" fill="url(#${id}horn)"/>
+    <path d="M14 -1.1 L60 -2.1" stroke="#fff" stroke-opacity=".4" stroke-width=".45"/>
+    <path d="M0 0 C 4 -0.7, 8 -1.2, 13 -1.5 L13 1.5 C 8 1.2, 4 0.7, 0 0 Z" fill="#0a0806"/>
+    <path d="M1.5 0 L9 0" stroke="#3c342a" stroke-width=".3"/>
+    <circle class="drop" cx="1.6" cy="0.6" r="1.5" fill="#050403" opacity="0"/>
+  </g>
+
+  <!-- the inkwell's front: brass collar, cut-glass shoulders and body, in front of a dipping nib -->
+  <g transform="translate(352 220)" pointer-events="none">
+    <path d="M-11 -8 A11 3 0 0 0 11 -8 L11 -1 L-11 -1 Z" fill="url(#${id}brass)"/>
+    <path d="M-11 -8 A11 3 0 0 0 11 -8" fill="none" stroke="#e6d3a6" stroke-opacity=".6" stroke-width=".6"/>
+    <path d="M-11 -3.6 L11 -3.6" stroke="#3d2d14" stroke-opacity=".5" stroke-width=".5"/>
+    <path d="M-11 -1 L11 -1 L22 5 L-22 5 Z" fill="url(#${id}glassTop)"/>
+    <path d="M-22 5 L-28 9 L-11 -1 Z" fill="#3a4038"/>
+    <path d="M22 5 L28 9 L11 -1 Z" fill="#151815"/>
+    <path d="M-28 9 L-22 5 L-22 35 L-28 31 Z" fill="url(#${id}glassSide)"/>
+    <path d="M28 9 L22 5 L22 35 L28 31 Z" fill="#0b0c0b"/>
+    <rect x="-22" y="5" width="44" height="30" fill="url(#${id}glassFront)"/>
+    <rect x="-22" y="31.5" width="44" height="3.5" fill="#5e665d" opacity=".35"/>
+    <path d="M-22 5 L-22 35 M22 5 L22 35 M-22 5 L22 5" stroke="#c9d1c7" stroke-opacity=".22" stroke-width=".55" fill="none"/>
+    <path d="M-28 9 L-28 31" stroke="#c9d1c7" stroke-opacity=".14" stroke-width=".5"/>
+    <path d="M-17 8 L-17 31" stroke="#fff" stroke-opacity=".32" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M-13.5 9 L-13.5 22" stroke="#fff" stroke-opacity=".12" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M-26 12 L-26 28" stroke="#e8cf9c" stroke-opacity=".14" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+</svg>`;
+    const svg = holder.firstElementChild;
+    const ink = svg.querySelector(".ink"), quill = svg.querySelector(".quill"), shadow = svg.querySelector(".shadow");
+    const drop = svg.querySelector(".drop");
+    // glyph grid → sheet → screen: the sheet is turned, so turn the points with it
+    const GX = 78, GY = 28, S = 2.1, ROT = -3.5 * Math.PI / 180, CX = 190, CY = 135;
+    const ANGLE = -40, SCALE = 0.56;
+    const WELL = { x: 352, y: 212 };
+    const REST = { x: 300, y: 150 };
+    const NIB = [0, 0.6, 1.2, 1.8];       // offsets along 45°: the cut quill's thick and thin
+
+    const toPage = (p) => {
+      const x = GX + p.x * S, y = GY + p.y * S, dx = x - CX, dy = y - CY;
+      return { x: CX + dx * Math.cos(ROT) - dy * Math.sin(ROT), y: CY + dx * Math.sin(ROT) + dy * Math.cos(ROT) };
+    };
+    function place(x, y, lift) {
+      const sc = SCALE * (1 + lift * 0.06);
+      quill.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${(ANGLE - lift * 3).toFixed(2)}) scale(${sc.toFixed(3)})`);
+      shadow.setAttribute("transform", `translate(${(x + 8 + lift * 12).toFixed(2)} ${(y + 10 + lift * 14).toFixed(2)}) rotate(${ANGLE}) scale(${SCALE})`);
+      shadow.setAttribute("opacity", (0.3 - lift * 0.12).toFixed(3));
+    }
+
+    let gi = 0, plan = [], step = 0, t = 0, last = 0, from = { ...REST }, at = { ...REST }, strokes = [], inkLeft = 0;
+    function loadGlyph() {
+      const g = GLYPHS[gi];
+      ink.replaceChildren();
+      ink.style.opacity = "1";
+      strokes = g.strokes.map(d => {
+        const grp = document.createElementNS(SVGNS, "g");
+        const paths = NIB.map(o => {
+          const p = document.createElementNS(SVGNS, "path");
+          p.setAttribute("d", d);
+          p.setAttribute("fill", "none");
+          p.setAttribute("stroke", "#050403");
+          p.setAttribute("stroke-width", "1.1");
+          p.setAttribute("stroke-linecap", "round");
+          p.setAttribute("stroke-linejoin", "round");
+          p.setAttribute("transform", `translate(${o} ${-o})`);
+          grp.append(p);
+          return p;
+        });
+        // a sheen of wet ink along the stroke that dries off after it is laid down
+        const wet = document.createElementNS(SVGNS, "path");
+        wet.setAttribute("d", d); wet.setAttribute("fill", "none");
+        wet.setAttribute("stroke", "#fff"); wet.setAttribute("stroke-opacity", ".28");
+        wet.setAttribute("stroke-width", ".35"); wet.setAttribute("stroke-linecap", "round");
+        wet.setAttribute("transform", "translate(0.5 -1.1)");
+        wet.style.transition = "opacity 2.4s ease";
+        grp.append(wet);
+        ink.append(grp);
+        const L = paths[0].getTotalLength ? paths[0].getTotalLength() : 100;
+        [...paths, wet].forEach(p => { p.style.strokeDasharray = `${L} ${L}`; p.style.strokeDashoffset = String(L); });
+        // ink pools where the nib first touches down
+        const p0 = paths[0].getPointAtLength ? paths[0].getPointAtLength(0) : { x: 0, y: 0 };
+        const pool = document.createElementNS(SVGNS, "ellipse");
+        pool.setAttribute("cx", (p0.x + 0.9).toFixed(2)); pool.setAttribute("cy", (p0.y - 0.9).toFixed(2));
+        pool.setAttribute("rx", "1.55"); pool.setAttribute("ry", "1.3"); pool.setAttribute("fill", "#050403");
+        pool.setAttribute("opacity", "0");
+        grp.append(pool);
+        return { paths, wet, pool, L, base: paths[0] };
+      });
+      plan = [
+        { type: "move", to: WELL, dur: 0.9 },
+        { type: "dip", dur: 1.1 }
+      ];
+      strokes.forEach((s, i) => {
+        plan.push({ type: "move", to: toPage(s.base.getPointAtLength(0)), dur: i === 0 ? 0.9 : 0.34 });
+        plan.push({ type: "draw", i, dur: Math.max(0.4, s.L / 70) });
+      });
+      plan.push({ type: "move", to: REST, dur: 0.8 });
+      plan.push({ type: "hold", dur: 1.8 });
+      plan.push({ type: "fade", dur: 0.9 });
+      step = 0; t = 0;
+    }
+
+    const ease = (x) => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+    let started = false;
+    function tick(now) {
+      if (!svg.isConnected) { started = false; return; }
+      const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
+      const p = plan[step];
+      t += dt;
+      const k = Math.min(1, t / p.dur);
+      if (p.type === "move") {
+        const e = ease(k);
+        at = { x: from.x + (p.to.x - from.x) * e, y: from.y + (p.to.y - from.y) * e };
+        place(at.x, at.y, Math.sin(k * Math.PI));
+      } else if (p.type === "dip") {
+        // down into the ink twice, then a tap on the rim; the nib comes up loaded
+        const d = Math.max(0, Math.sin(k * Math.PI * 2)) * 9 + Math.max(0, Math.sin(k * Math.PI * 4)) * 2.5;
+        at = { x: WELL.x, y: WELL.y + d };
+        place(at.x, at.y, 0.2);
+        if (k > 0.3) { inkLeft = 1; drop.setAttribute("opacity", "1"); drop.setAttribute("r", "1.6"); }
+      } else if (p.type === "draw") {
+        const s = strokes[p.i], len = s.L * k;
+        s.paths.forEach(path => { path.style.strokeDashoffset = String(s.L - len); });
+        s.wet.style.strokeDashoffset = String(s.L - len);
+        if (k > 0) s.pool.setAttribute("opacity", "1");
+        if (k >= 1) s.wet.style.opacity = "0";
+        inkLeft = Math.max(0, inkLeft - dt * 0.55);
+        drop.setAttribute("r", (0.5 + inkLeft * 1.1).toFixed(2));
+        drop.setAttribute("opacity", Math.min(1, inkLeft * 1.6).toFixed(2));
+        at = toPage(s.base.getPointAtLength(len));
+        place(at.x, at.y, 0);
+      } else if (p.type === "fade") {
+        ink.style.opacity = String(1 - k);
+      }
+      if (k >= 1) {
+        from = { ...at };
+        step++; t = 0;
+        if (step >= plan.length) { gi = (gi + 1) % GLYPHS.length; loadGlyph(); }
+      }
+      requestAnimationFrame(tick);
+    }
+    svg.start = () => {
+      if (started) return;
+      started = true;
+      loadGlyph();
+      place(REST.x, REST.y, 0);
+      if (reduceMotion) {
+        const showAll = () => strokes.forEach(s => { s.paths.forEach(p => { p.style.strokeDashoffset = "0"; }); s.pool.setAttribute("opacity", "1"); s.wet.style.opacity = "0"; });
+        showAll();
+        const cycle = setInterval(() => {
+          if (!svg.isConnected) return clearInterval(cycle);
+          gi = (gi + 1) % GLYPHS.length; loadGlyph(); showAll();
+        }, 3500);
+        return;
+      }
+      last = 0;
+      requestAnimationFrame(tick);
+    };
+    return svg;
+  }
+
+  let foyerToken = 0, foyerEls = null;
+  function hangDesk() {
+    const { frame } = foyerEls;
+    if (frame.querySelector("svg.shown") && !frame.querySelector("img")) return;
+    const desk = writingDesk();
+    [...frame.children].forEach(o => { o.classList.remove("shown"); setTimeout(() => o.remove(), 900); });
+    frame.append(desk);
+    desk.start();
+    requestAnimationFrame(() => desk.classList.add("shown"));
+  }
+  function showFoyer() {
+    current = null; tint(0.72);
+    const frame = h("div", { class: "frame" });
+    foyerEls = { frame };
+    stage.replaceChildren(h("div", { class: "foyer" }, frame));
+    const v = $("q").value.trim();
+    if (v.length >= 3) hangPainting(v); else hangDesk();
+  }
+  async function hangPainting(q) {
+    if (!foyerEls) return;
+    const mine = ++foyerToken;
+    let art = null;
+    try { art = await findPainting(q); } catch {}
+    if (mine !== foyerToken || !foyerEls || !foyerEls.frame.isConnected) return;
+    if (!art) return hangDesk();
+    const { frame } = foyerEls;
+    const img = new Image();
+    img.title = `${art.title}${art.artist ? ", " + art.artist : ""}${art.date ? ", " + art.date : ""}. On loan from ${art.museum}, public domain.`;
+    img.alt = art.alt || `${art.title}${art.artist ? ", by " + art.artist : ""}`;
+    img.decoding = "async";
+    img.referrerPolicy = "no-referrer";
+    img.onerror = () => { if (mine === foyerToken && frame.isConnected) hangDesk(); };
+    img.onload = () => {
+      if (mine !== foyerToken || !frame.isConnected) return;
+      const old = [...frame.children];
+      frame.append(img);
+      requestAnimationFrame(() => img.classList.add("shown"));
+      old.forEach(o => { o.classList.remove("shown"); setTimeout(() => o.remove(), 900); });
+    };
+    img.src = art.src;
+  }
+
+  /* ======================= Wiktionary ======================= */
+  const memo = new Map(Object.entries(store.get(CACHE, {})).map(([k, v]) => [k, normalize(v)]).filter(([, v]) => v));
+  const inflight = new Map();
+  function remember(key, entry) {
+    memo.set(key, entry);
+    store.set(CACHE, Object.fromEntries([...memo.entries()].slice(-60)));
+  }
+  async function api(params) {
+    const qs = new URLSearchParams({ format: "json", formatversion: "2", origin: "*", ...params });
+    const res = await fetch(`${API}?${qs}`);
+    if (!res.ok) throw new Error("network");
+    return res.json();
+  }
+  function lookup(input) {
+    const raw = input.trim(), key = raw.toLowerCase();
+    if (memo.has(key)) return Promise.resolve(memo.get(key));
+    if (inflight.has(key)) return inflight.get(key);
+    const p = (async () => {
+      for (const page of [...new Set([key, raw])]) {
+        const s = await api({ action: "parse", page, prop: "sections", redirects: "1" });
+        if (s.error || !s.parse || !Array.isArray(s.parse.sections)) continue;
+        const en = s.parse.sections.find(x => Number(x.toclevel) === 1 && (x.line === "English" || x.anchor === "English"));
+        if (!en) continue;
+        const t = await api({ action: "parse", page: s.parse.title, prop: "text", section: en.index,
+                              disableeditsection: "1", disablelimitreport: "1" });
+        const html = typeof t?.parse?.text === "string" ? t.parse.text : t?.parse?.text?.["*"];
+        if (t.error || !html) continue;
+        const entry = normalize(parseEntry(html, s.parse.title));
+        if (entry) { remember(key, entry); return entry; }
+      }
+      return null;
+    })();
+    inflight.set(key, p);
+    p.finally(() => inflight.delete(key));
+    return p;
+  }
+  function headingOf(el) {
+    if (el.classList?.contains("mw-heading")) return el.querySelector("h1,h2,h3,h4,h5,h6");
+    if (/^H[1-6]$/.test(el.tagName)) return el;
+    return null;
+  }
+  function parseEntry(html, title) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const english = doc.getElementById("English");
+    let el = english ? (english.closest(".mw-heading") || english).nextElementSibling
+                     : (doc.querySelector(".mw-parser-output") || doc.body).firstElementChild;
+    const etyParas = [];
+    let section = "", etyDone = false, pos = "", def = "";
+    while (el) {
+      const hd = headingOf(el);
+      if (hd) {
+        if (hd.tagName === "H2") break;
+        section = (hd.textContent || "").trim();
+        if (/^Etymology/i.test(section) && etyParas.length) etyDone = true;
+      } else {
+        if (/^Etymology/i.test(section) && !etyDone && el.tagName === "P" && el.textContent.trim()) etyParas.push(el);
+        if (!def && POS.test(section) && el.tagName === "OL") {
+          const li = el.querySelector(":scope > li");
+          if (li) {
+            const c = li.cloneNode(true);
+            c.querySelectorAll("ul, ol, dl, sup, .HQToggle, .nyms, .citation-whole, style").forEach(n => n.remove());
+            def = c.textContent.split("\n")[0].replace(/\s+/g, " ").trim();
+            pos = section.toLowerCase();
+          }
+        }
+      }
+      el = el.nextElementSibling;
+    }
+    const ipaEl = doc.querySelector(".IPA");
+    etyParas.forEach(p => p.querySelectorAll("sup.reference, .mw-ref, style").forEach(n => n.remove()));
+    const prose = etyParas.map(p => p.textContent).join(" ").replace(/\s+/g, " ").replace(/\s([,.;:])/g, "$1").trim();
+    const { chain, kin } = readChain(etyParas);
+    const now = { lang: "English", term: title, tr: "", gloss: "" };
+    const stages = [...chain.reverse(), now].map(s => ({ ...s, era: ERAS[s.lang] || "" }));
+    return { title, stages, prose, kin, ipa: ipaEl ? ipaEl.textContent.trim() : "", pos, def };
+  }
+  const STOP = /\b(cognate|cognates|compare|cf\.|doublet|related to|akin to|see also)\b/i;
+  function readChain(paras) {
+    const chain = [], kin = [];
+    let pending = null, mode = "chain";
+    for (const p of paras) {
+      const walker = document.createTreeWalker(p, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) {
+        if (node.nodeType === 3) { if (mode === "chain" && !pending && STOP.test(node.nodeValue)) mode = "kin"; continue; }
+        const cl = node.classList;
+        if (cl.contains("etyl")) { pending = node.textContent.trim() || null; continue; }
+        if (cl.contains("mention") && node.hasAttribute("lang") && pending) {
+          const term = node.textContent.trim();
+          if (term && term !== "-") {
+            const item = { lang: pending, term, ...siblingsInfo(node) };
+            if (mode === "chain" && chain.length < 9) chain.push(item);
+            else if (mode === "kin" && kin.length < 6) kin.push(item);
+          }
+          pending = null;
+        }
+      }
+    }
+    const dedupe = (l) => l.filter((s, i) => i === 0 || !(s.lang === l[i - 1].lang && s.term === l[i - 1].term));
+    return { chain: dedupe(chain), kin: dedupe(kin) };
+  }
+  function siblingsInfo(node) {
+    let tr = "", gloss = "", s = node.nextElementSibling, n = 0;
+    while (s && n < 8) {
+      if (s.classList.contains("etyl") || (s.classList.contains("mention") && s.hasAttribute("lang"))) break;
+      if (!tr) { const t = s.matches(".tr, .mention-tr") ? s : s.querySelector(".tr, .mention-tr"); if (t) tr = t.textContent.trim(); }
+      if (!gloss) { const g = s.matches(".mention-gloss") ? s : s.querySelector(".mention-gloss"); if (g) gloss = g.textContent.trim(); }
+      s = s.nextElementSibling; n++;
+    }
+    return { tr, gloss };
+  }
+
+  /* ======================= physics ======================= */
+  // pos is a continuous position on the timeline (0 = earliest, n-1 = today).
+  // drag:   pos tracks the finger by how far it moved, never jumping under it
+  // coast:  after release it keeps the throw's speed and slows with friction
+  // spring: once slow, a soft spring eases it onto the nearest stage
+  let current = null, ui = {};
+  let pos = 0, vel = 0, mode = "idle", target = 0, k = 140, shown = -1;
+  let drag = null;
+  let phase = 0;
+
+  const maxPos = () => (current ? current.stages.length - 1 : 0);
+  function springTo(i, stiffness = 140) {
+    if (!current) return;
+    target = Math.max(0, Math.min(maxPos(), Math.round(i)));
+    k = stiffness; mode = "spring";
+    if (reduceMotion) { pos = target; vel = 0; mode = "idle"; paint(); }
+  }
+
+  let lastFrame = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.033, (now - lastFrame) / 1000); lastFrame = now;
+    if (current && mode === "coast") {
+      vel *= Math.exp(-dt * 3.4);
+      pos += vel * dt;
+      if (pos < 0 || pos > maxPos()) springTo(Math.max(0, Math.min(maxPos(), pos)), 180);
+      else if (Math.abs(vel) < 0.9) springTo(pos + vel * 0.12, 120);
+    }
+    if (current && mode === "spring") {
+      const c = 2 * Math.sqrt(k) * 0.92;
+      vel += (k * (target - pos) - c * vel) * dt;
+      pos += vel * dt;
+      if (Math.abs(target - pos) < 0.0008 && Math.abs(vel) < 0.01) { pos = target; vel = 0; mode = "idle"; }
+    }
+    if (current && mode !== "idle") paint();
+    const speed = Math.min(6, Math.abs(vel));
+    phase += dt * (0.18 + speed * 0.55);
+    flowLight(speed);
+    requestAnimationFrame(frame);
+  }
+  function flowLight(speed) {
+    const s = caseEl.style, p = reduceMotion ? 0 : phase;
+    s.setProperty("--x1", (50 + 16 * Math.sin(p * 0.9)).toFixed(2) + "%");
+    s.setProperty("--y1", (2 + 8 * Math.sin(p * 1.3 + 1)).toFixed(2) + "%");
+    s.setProperty("--x2", (50 + 26 * Math.sin(p * 0.6 + 2.2)).toFixed(2) + "%");
+    s.setProperty("--y2", (6 + 7 * Math.cos(p * 1.1)).toFixed(2) + "%");
+    s.setProperty("--x3", (50 + 12 * Math.cos(p * 0.4 + 0.5)).toFixed(2) + "%");
+    s.setProperty("--a", (0.15 + Math.min(0.16, speed * 0.05)).toFixed(3));
+  }
+  function tint(t) {
+    const [r, g, b] = sample(LIGHT, t), [r2, g2, b2] = sample(LIGHT, Math.min(1, t + 0.22));
+    const [pr, pg, pb] = sample(PATINA, t);
+    caseEl.style.setProperty("--c1", `${r}, ${g}, ${b}`);
+    caseEl.style.setProperty("--c2", `${r2}, ${g2}, ${b2}`);
+    caseEl.style.setProperty("--word", `rgb(${pr}, ${pg}, ${pb})`);
+  }
+
+  function bindDrag(el, scaleFn, tapFn) {
+    el.addEventListener("pointerdown", (e) => {
+      if (!current || current.stages.length < 2 || e.button > 0) return;
+      drag = { x: e.clientX, y: e.clientY, pos0: pos, scale: scaleFn(), samples: [[performance.now(), pos]], moved: false, el, id: e.pointerId, tapFn };
+      vel = 0; mode = "drag";
+    });
+    el.addEventListener("pointermove", (e) => {
+      if (!drag || drag.el !== el || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (!drag.moved) {
+        if (Math.abs(dx) < 4) return;
+        if (Math.abs(dy) > Math.abs(dx) && el.classList.contains("exhibit")) { drag = null; springTo(pos); return; }
+        drag.moved = true; try { el.setPointerCapture(e.pointerId); } catch {}
+        el.classList.add("dragging"); ui.line?.classList.add("dragging");
+        dismissHint();
+      }
+      const n1 = maxPos();
+      let raw = drag.pos0 + dx * drag.scale;
+      if (raw < 0) raw = raw * 0.28;
+      if (raw > n1) raw = n1 + (raw - n1) * 0.28;
+      pos = raw;
+      const now = performance.now();
+      drag.samples.push([now, pos]);
+      while (drag.samples.length > 2 && now - drag.samples[0][0] > 90) drag.samples.shift();
+      paint();
+    });
+    const end = (e) => {
+      if (!drag || drag.el !== el) return;
+      const d = drag; drag = null;
+      el.classList.remove("dragging"); ui.line?.classList.remove("dragging");
+      if (!d.moved) { if (d.tapFn) { dismissHint(); d.tapFn(e); } else springTo(pos, 140); return; }
+      const [t0, p0] = d.samples[0], [t1, p1] = d.samples[d.samples.length - 1];
+      vel = t1 > t0 ? ((p1 - p0) / (t1 - t0)) * 1000 : 0;
+      vel = Math.max(-14, Math.min(14, vel));
+      mode = "coast";
+    };
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", end);
+  }
+
+  /* ======================= first-visit hint ======================= */
+  function dismissHint() {
+    if (!ui.hint || ui.hint.classList.contains("gone")) return;
+    ui.hint.classList.add("gone");
+    ui.line?.classList.remove("invite");
+    store.set(HINTED, true);
+  }
+
+  /* ======================= rendering ======================= */
+  function termInto(el, term) {
+    term = txt(term);
+    el.replaceChildren();
+    if (term.startsWith("*")) el.append(h("span", { class: "ast" }, "*"), term.slice(1));
+    else el.append(term);
+    el.style.setProperty("--len", Math.max(3, [...term].length));
+  }
+  function showMessage(msg, actions = []) {
+    current = null; tint(1);
+    stage.replaceChildren(h("p", { class: "status" }, msg), actions.length ? h("div", { class: "actions" }, actions) : null);
+  }
+
+  const ICON_SAVE = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M4 2.5h8v11l-4-2.8-4 2.8z"/></svg>';
+  const ICON_DOWN = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v8M4.5 7.5 8 11l3.5-3.5M2.5 13.5h11"/></svg>';
+  const iconBtn = (svg, label, onclick, id) => {
+    const b = h("button", { class: "btn", type: "button", id, onclick });
+    b.innerHTML = svg; b.append(h("span", {}, label));
+    return b;
+  };
+
+  function render(raw) {
+    const entry = normalize(raw);
+    if (!entry) return showMessage("This record is damaged. Ask for the word again.");
+    current = entry;
+    const n = entry.stages.length;
+    const la = h("span"), lb = h("span");
+    const exhibit = h("div", { class: "exhibit", title: n > 1 ? "Drag sideways to walk through time" : null }, la, lb);
+    const lang = h("div", { class: "lang" }), era = h("div", { class: "era" }), note = h("div", { class: "note" }), acc = h("div", { class: "acc" });
+
+    let travel = null, line = null, thumb = null, trail = null, hint = null;
+    if (n > 1) {
+      thumb = h("div", { class: "thumb" });
+      trail = h("div", { class: "trail" });
+      const marks = h("div", { class: "marks" }, entry.stages.map((s, i) =>
+        h("div", { class: "mark", style: `left:${(i / (n - 1)) * 100}%`, title: s.lang + (s.era ? ", " + s.era : "") },
+          h("i"), h("b", {}, i === n - 1 ? "NOW" : abbr(s.lang)))));
+      line = h("div", { class: "timeline", tabindex: "0", role: "slider", "aria-label": "Travel through the word's history",
+        "aria-valuemin": "0", "aria-valuemax": String(n - 1) }, h("div", { class: "line" }, trail), marks, thumb);
+      const width = () => Math.max(1, line.getBoundingClientRect().width - 28);
+      bindDrag(line, () => (n - 1) / width(), (e) => {
+        const r = line.getBoundingClientRect();
+        springTo(((e.clientX - r.left - 14) / Math.max(1, r.width - 28)) * (n - 1), 120);
+      });
+      line.addEventListener("keydown", (e) => {
+        const r = Math.round(mode === "spring" ? target : pos);
+        const map = { ArrowLeft: r - 1, ArrowDown: r - 1, ArrowRight: r + 1, ArrowUp: r + 1, Home: 0, End: n - 1, PageDown: 0, PageUp: n - 1 };
+        if (e.key in map) { e.preventDefault(); dismissHint(); springTo(map[e.key], 150); }
+      });
+      bindDrag(exhibit, () => ((n - 1) / Math.max(1, exhibit.getBoundingClientRect().width)) * 1.15);
+
+      const firstVisit = !store.get(HINTED, false);
+      hint = h("div", { class: "hint" + (firstVisit ? "" : " gone"), "aria-hidden": "true" });
+      hint.innerHTML = '<svg viewBox="0 0 16 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5H1.5M5 1.5 1.5 5 5 8.5"/></svg><span>walk back through the galleries</span>';
+      if (firstVisit && !reduceMotion) line.classList.add("invite");
+      travel = h("div", { class: "travel" }, hint, line,
+        h("div", { class: "ends", "aria-hidden": "true" }, h("span", {}, "the oldest gallery"), h("span", {}, "the entrance")));
+    }
+
+    const prose = h("p", { class: "clamp" }, entry.prose || "Our records don't yet say where this word came from.");
+    const more = h("button", { class: "press", type: "button", "aria-expanded": "false", hidden: "", onclick: () => {
+      const open = prose.classList.toggle("clamp") === false;
+      more.setAttribute("aria-expanded", String(open));
+      more.textContent = open ? "Close the note" : "Read the full note";
+    } }, "Read the full note");
+    const kin = entry.kin.length
+      ? h("p", { class: "kin" }, "Its relatives: ", entry.kin.flatMap((k, i) => [i ? " · " : "", `${k.lang} `, h("span", {}, k.term)]))
+      : null;
+    const plaque = h("div", { class: "plaque" },
+      h("i", { class: "screw" }), h("i", { class: "screw" }), h("i", { class: "screw" }), h("i", { class: "screw" }),
+      h("div", { class: "engraved" }, "The curator's note"),
+      prose, kin,
+      h("div", { class: "row" }, more),
+      h("div", { class: "credit" }, "From ",
+        h("a", { href: `https://en.wiktionary.org/wiki/${encodeURIComponent(entry.title)}#English`, target: "_blank", rel: "noopener" }, "Wiktionary"),
+        " · CC BY-SA"));
+
+    const actions = h("div", { class: "actions" },
+      iconBtn(ICON_SAVE, "Save this journey", toggleSave, "saveBtn"),
+      iconBtn(ICON_DOWN, "Take home a print", () => downloadCard(current)));
+
+    stage.replaceChildren(exhibit, h("div", { class: "placard" }, lang, era, note, acc), travel, actions, plaque);
+    requestAnimationFrame(() => { more.hidden = prose.scrollHeight <= prose.clientHeight + 2; });
+
+    ui = { la, lb, lang, era, note, acc, thumb, trail, line, hint, a: -1, b: -1 };
+    shown = -1; vel = 0; drag = null;
+    pos = n - 1; mode = "idle";        // the visitor starts in the present and travels back themselves
+    paint();
+    syncSave();
+    try { history.replaceState(null, "", "#" + encodeURIComponent(entry.title)); } catch {}
+    document.title = `${entry.title} · etyms`;
+  }
+
+  const smoother = (x) => x * x * x * (x * (x * 6 - 15) + 10);
+  const roman = (num) => {
+    const map = [[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]];
+    let out = "";
+    for (const [v, r] of map) while (num >= v) { out += r; num -= v; }
+    return out || "I";
+  };
+  function paint() {
+    const st = current.stages, n = st.length;
+    const pc = Math.max(0, Math.min(n - 1, pos));
+    const i0 = Math.floor(pc), i1 = Math.min(n - 1, i0 + 1), f = pc - i0;
+    if (ui.a !== i0) { termInto(ui.la, st[i0].term); ui.a = i0; }
+    if (ui.b !== i1) { termInto(ui.lb, st[i1].term); ui.b = i1; }
+    // a long, eased dissolve: the outgoing form softens and recedes while the next one comes into focus
+    const s = smoother(f);
+    const B = reduceMotion ? 0 : 10;
+    const set = (el, op, bl, sc) => {
+      el.style.opacity = op.toFixed(3);
+      el.style.filter = bl > 0.15 ? `blur(${bl.toFixed(2)}px)` : "none";
+      el.style.transform = reduceMotion ? "" : `scale(${sc.toFixed(4)})`;
+    };
+    set(ui.la, 1 - s, B * s, 1 - 0.03 * s);
+    if (i1 === i0) ui.lb.style.opacity = "0";
+    else set(ui.lb, s, B * (1 - s), 0.97 + 0.03 * s);
+    const t = n > 1 ? pc / (n - 1) : 1;
+    tint(t);
+    if (ui.thumb) {
+      const tv = n > 1 ? Math.max(-0.04, Math.min(1.04, pos / (n - 1))) : 1;
+      ui.thumb.style.left = `calc(14px + (100% - 28px) * ${tv.toFixed(4)})`;
+      ui.trail.style.width = `${(t * 100).toFixed(2)}%`;
+    }
+    const r = Math.round(pc);
+    if (r !== shown) {
+      if (shown !== -1 && drag?.moved) navigator.vibrate?.(5);
+      shown = r; label(r);
+    }
+  }
+
+  function label(r) {
+    const s = current.stages[r], n = current.stages.length, isNow = r === n - 1;
+    ui.lang.textContent = isNow ? "Modern English" : s.lang;
+    ui.era.textContent = isNow ? (current.ipa || "on display today") : (s.era || "date not recorded");
+    const bits = [];
+    if (isNow) {
+      if (current.pos) bits.push(current.pos);
+      if (current.def) bits.push(current.def.length > 120 ? current.def.slice(0, 118) + "…" : current.def);
+    } else {
+      if (s.tr) bits.push(s.tr);
+      if (s.gloss) bits.push(`“${s.gloss}”`);
+      if (s.term.startsWith("*")) bits.push("reconstructed by scholars; no written copy survives");
+    }
+    ui.note.textContent = bits.filter(Boolean).join(" · ");
+    const id = current.title.replace(/[^a-z]/gi, "").slice(0, 6).toUpperCase() || "WORD";
+    ui.acc.textContent = `Gallery ${roman(n - r)} of ${roman(n)} · Exhibit ${id}`;
+    if (ui.line) {
+      ui.line.querySelectorAll(".mark").forEach((m, i) => m.classList.toggle("on", i === r));
+      ui.line.setAttribute("aria-valuenow", String(r));
+      ui.line.setAttribute("aria-valuetext", `${isNow ? "Modern English" : s.lang}: ${s.term}`);
+    }
+  }
+
+  /* ======================= journey as an image ======================= */
+  async function downloadCard(entry) {
+    if (!entry) return;
+    try { await Promise.all([document.fonts.load('80px "Instrument Serif"'), document.fonts.load('24px "Geist Mono"')]); } catch {}
+    const W = 1080, H = 1350, c = document.createElement("canvas");
+    c.width = W; c.height = H;
+    const g = c.getContext("2d");
+    const serif = '"Instrument Serif", "Noto Serif", Georgia, serif', mono = '"Geist Mono", ui-monospace, Menlo, monospace';
+    const rgb = (a, al = 1) => `rgba(${a[0]}, ${a[1]}, ${a[2]}, ${al})`;
+    g.fillStyle = "#000"; g.fillRect(0, 0, W, H);
+    // the light: sepia on the left drifting into daylight on the right
+    for (const [x, t] of [[260, 0.1], [540, 0.6], [820, 1]]) {
+      const rg = g.createRadialGradient(x, -60, 0, x, -60, 560);
+      rg.addColorStop(0, rgb(sample(LIGHT, t), 0.3)); rg.addColorStop(1, rgb(sample(LIGHT, t), 0));
+      g.fillStyle = rg; g.fillRect(0, 0, W, 700);
+    }
+    g.textAlign = "center"; g.textBaseline = "alphabetic";
+    g.fillStyle = "#9a968f"; g.font = `22px ${mono}`;
+    g.fillText("etyms · a journey", W / 2, 96);
+    let size = 170;
+    g.font = `${size}px ${serif}`;
+    while (g.measureText(entry.title).width > 900 && size > 60) { size -= 6; g.font = `${size}px ${serif}`; }
+    g.fillStyle = "#fff"; g.fillText(entry.title, W / 2, 300);
+    g.fillStyle = "#9a968f"; g.font = `24px ${mono}`;
+    g.fillText([entry.ipa, entry.pos].filter(Boolean).join("  ·  ") || "Modern English", W / 2, 360);
+
+    const st = entry.stages, n = st.length;
+    const top = 450, bottom = H - 170, step = n > 1 ? Math.min(150, (bottom - top) / (n - 1)) : 0;
+    const termSize = step < 110 ? 40 : 52;
+    const x0 = 150;
+    g.strokeStyle = "rgba(255,255,255,.12)"; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(x0, top); g.lineTo(x0, top + step * (n - 1)); g.stroke();
+    st.forEach((s, i) => {
+      const y = top + step * i, t = n > 1 ? i / (n - 1) : 1, isNow = i === n - 1;
+      g.fillStyle = rgb(sample(LIGHT, t)); g.beginPath(); g.arc(x0, y, isNow ? 11 : 8, 0, Math.PI * 2); g.fill();
+      g.textAlign = "left";
+      g.fillStyle = "#7d7973"; g.font = `22px ${mono}`;
+      g.fillText((isNow ? "MODERN ENGLISH" : s.lang.toUpperCase()), x0 + 44, y - 12);
+      g.textAlign = "right";
+      g.fillText(isNow ? "TODAY" : (s.era || "").toUpperCase(), W - 110, y - 12);
+      g.textAlign = "left";
+      let ts = termSize; g.font = `${ts}px ${serif}`;
+      while (g.measureText(s.term).width > W - x0 - 180 && ts > 24) { ts -= 2; g.font = `${ts}px ${serif}`; }
+      g.fillStyle = rgb(sample(PATINA, t)); g.fillText(s.term, x0 + 44, y + ts * 0.85);
+    });
+    g.strokeStyle = "rgba(255,255,255,.1)"; g.lineWidth = 1.5;
+    g.beginPath(); g.moveTo(96, H - 128); g.lineTo(W - 96, H - 128); g.stroke();
+    g.textAlign = "left"; g.fillStyle = "#8b8780"; g.font = `25px ${mono}`;
+    g.fillText("etyms, made by abhiggt.", 96, H - 74);
+    g.textAlign = "right"; g.fillStyle = "#5d5a55"; g.font = `22px ${mono}`;
+    g.fillText("Source: Wiktionary, CC BY-SA", W - 96, H - 74);
+
+    c.toBlob((blob) => {
+      if (!blob) return toast("The print room couldn't make this one. Try again.");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `etym-${entry.title.replace(/[^\p{L}\p{N}-]+/gu, "-")}.jpeg`;
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      toast("Your print is ready. Thank you for visiting.");
+    }, "image/jpeg", 0.92);
+  }
+
+  /* ======================= while the archive is searched: guess the origin ======================= */
+  const FAMILIES = ["Germanic", "Latin", "Greek", "French", "Somewhere else"];
+  function origins(entry) {
+    const out = [];
+    const add = (f) => { if (!out.includes(f)) out.push(f); };
+    for (const s of entry.stages.slice(0, -1)) {
+      const l = s.lang;
+      if (/Latin|Italic/.test(l)) add("Latin");
+      else if (/Greek|Hellenic/.test(l)) add("Greek");
+      else if (/French|Norman|Occitan/.test(l)) add("French");
+      else if (/Old English|Germanic|Norse|Saxon|Frisian|Dutch|German/.test(l)) add("Germanic");
+      else if (!/English|Indo-European/.test(l)) add("Somewhere else");
+    }
+    return out;
+  }
+  function showDigging(word, onGuess) {
+    current = null; tint(0.7);
+    const w = h("span"); termInto(w, word);
+    const verdict = h("div", { class: "verdict" });
+    const buttons = FAMILIES.map(f => h("button", { class: "choice", type: "button", "aria-pressed": "false", "data-f": f, onclick: (e) => {
+      buttons.forEach(b => { b.disabled = true; b.setAttribute("aria-pressed", String(b === e.currentTarget)); });
+      onGuess(f, verdict);
+    } }, f));
+    stage.replaceChildren(
+      h("div", { class: "exhibit pending" }, w),
+      h("div", { class: "dig" },
+        h("div", { class: "progress", role: "progressbar", "aria-label": "Searching the archive" }),
+        h("div", { class: "q" }, "The curator is bringing it up from the vaults. While you wait: where do you think ", h("strong", {}, word), " comes from?"),
+        h("div", { class: "choices" }, buttons),
+        verdict)
+    );
+  }
+
+  /* ======================= saved journeys + recent ======================= */
+  const saved = () => (store.get(SAVED, []) || []).map(normalize).filter(Boolean);
+  function syncSave() {
+    const b = $("saveBtn"); if (!b || !current) return;
+    const on = saved().some(s => s.title === current.title);
+    b.querySelector("span").textContent = on ? "Journey saved" : "Save this journey";
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", String(on));
+  }
+  function toggleSave() {
+    let list = saved();
+    const had = list.some(s => s.title === current.title);
+    list = had ? list.filter(s => s.title !== current.title) : [{ ...current, savedAt: Date.now() }, ...list];
+    if (!store.set(SAVED, list)) return toast("This browser won't let etyms save.");
+    toast(had ? "Removed from saved journeys" : "Saved. Find it under Saved journeys, even offline.");
+    syncSave(); renderShelf();
+  }
+  function renderShelf() {
+    const list = saved(), box = $("shelf");
+    $("count").textContent = list.length;
+    if (!list.length) return box.replaceChildren(h("span", { class: "empty" }, "Journeys you save are kept here, in this browser."));
+    box.replaceChildren(...list.map(item => h("span", { class: "chip" },
+      h("button", { class: "open", type: "button", onclick: () => { $("q").value = item.title; render(item); scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }); } }, item.title),
+      h("button", { class: "x", type: "button", "aria-label": `Remove ${item.title}`, onclick: () => {
+        store.set(SAVED, saved().filter(s => s.title !== item.title)); renderShelf(); syncSave();
+      } }, "×"))));
+  }
+  function setDrawer(open) {
+    $("drawer").setAttribute("aria-expanded", String(open));
+    $("shelf").hidden = !open;
+    store.set(DRAWER, open);
+  }
+  $("drawer").addEventListener("click", () => setDrawer($("shelf").hidden));
+
+  /* ======================= search ======================= */
+  let token = 0;
+  async function search(q) {
+    q = txt(q);
+    if (!q) return;
+    if (q.toLowerCase() === "wordle") return wordle();
+    const mine = ++token, key = q.toLowerCase();
+    if (memo.has(key)) return render(memo.get(key));
+
+    let guess = null, verdictEl = null;
+    const job = lookup(q);
+    showDigging(q, (g, v) => { guess = g; verdictEl = v; v.replaceChildren("Noted. The curator is on the stairs…"); });
+    try {
+      const entry = await job;
+      if (mine !== token) return;
+      if (!entry) return showMessage(`“${q}” isn't in our collection yet. Check the spelling, or ask for its simpler form.`);
+      if (guess && verdictEl) {
+        const fam = origins(entry);
+        const right = fam.includes(guess);
+        verdictEl.replaceChildren(fam.length ? (right ? "A keen eye." : "Not quite, but a fair guess.") : "Even the curators aren't sure.",
+          h("small", {}, fam.length ? fam.join(" → ") : "The records are silent"));
+        await wait(1500);
+        if (mine !== token) return;
+      }
+      render(entry);
+    } catch {
+      if (mine !== token) return;
+      const s = saved().find(x => x.title.toLowerCase() === key);
+      if (s) return render(s);
+      showMessage("The archive doors won't open right now. Check your connection and try again.",
+        [h("button", { class: "btn", type: "button", onclick: () => search(q) }, "Try again")]);
+    }
+  }
+
+  /* ======================= today's wordle ======================= */
+  const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  async function wordleAnswer() {
+    for (const url of WORDLE_SOURCES) {
+      try {
+        const r = await fetch(url, { cache: "no-cache" });
+        if (!r.ok) continue;
+        const j = await r.json();
+        const answers = j.answers || j;
+        const read = (d) => { const v = answers[d]; return txt(typeof v === "string" ? v : v?.answer || v?.solution) || null; };
+        const today = ymd(new Date());
+        if (read(today)) return { word: read(today).toLowerCase(), date: today, fresh: true };
+        const latest = Object.keys(answers).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k) && read(k)).sort().pop();
+        if (latest) return { word: read(latest).toLowerCase(), date: latest, fresh: false };
+      } catch {}
+    }
+    return null;
+  }
+  async function wordle() {
+    const mine = ++token;
+    $("q").value = "";
+    current = null; tint(0.7);
+    stage.replaceChildren(h("div", { class: "dig" },
+      h("div", { class: "progress", role: "progressbar", "aria-label": "Fetching today's Wordle" }),
+      h("div", { class: "q" }, "Collecting today's Wordle answer from the loading dock…")));
+    const res = await wordleAnswer();
+    if (mine !== token) return;
+    if (!res) return showMessage("Today's Wordle answer hasn't come in. Try again in a moment.",
+      [h("button", { class: "btn", type: "button", onclick: wordle }, "Try again")]);
+    lookup(res.word).catch(() => {});
+    stage.replaceChildren(
+      h("div", { class: "placard" }, h("div", { class: "lang" }, "Today's acquisition"), h("div", { class: "era" }, `Wordle · ${res.date}`)),
+      h("div", { class: "tiles", "aria-label": "Hidden five-letter answer" }, [...res.word].map(() => h("span"))),
+      h("p", { class: "status" }, res.fresh
+        ? "Today's Wordle answer has arrived, still under its cloth. Uncover it once you've played."
+        : "Today's answer hasn't arrived yet, so this is the most recent acquisition. Uncover it once you've played it."),
+      h("div", { class: "actions" }, h("button", { class: "btn", type: "button", onclick: () => { $("q").value = res.word; search(res.word); } }, "Uncover the exhibit")),
+      h("div", { class: "credit" }, "Answers from ",
+        h("a", { href: "https://github.com/ramkrishna3245/wordle-answers", target: "_blank", rel: "noopener" }, "wordle-answers"), " · MIT")
+    );
+  }
+
+  /* ======================= wiring ======================= */
+  const q = $("q");
+  $("searchForm").addEventListener("submit", (e) => { e.preventDefault(); search(q.value); q.blur(); });
+  let typeTimer, paintTimer;
+  const syncReady = () => $("searchForm").classList.toggle("ready", q.value.trim().length > 0);
+  q.addEventListener("input", () => {
+    syncReady();
+    clearTimeout(typeTimer); clearTimeout(paintTimer);
+    const v = q.value.trim();
+    // in the foyer, the painting follows what's being written
+    if (foyerEls?.frame.isConnected) paintTimer = setTimeout(() => { if (v.length >= 3) hangPainting(v); else { ++foyerToken; hangDesk(); } }, 650);
+    if (v.length < 3 || v.toLowerCase() === "wordle") return;
+    typeTimer = setTimeout(() => lookup(v).catch(() => {}), 400);
+  });
+  // the placeholder suggests a word worth trying, a new one every few seconds
+  const EXAMPLES = ["salary", "nightmare", "quarantine", "wordle", "muscle", "companion", "disaster", "silly"];
+  let ex = 0;
+  setInterval(() => {
+    if (q.value) return;
+    ex = (ex + 1) % EXAMPLES.length;
+    q.placeholder = `write a word, try “${EXAMPLES[ex]}”`;
+  }, 3200);
+  q.placeholder = `write a word, try “${EXAMPLES[0]}”`;
+  // tapping the papyrus is a quiet way in: it picks a word for you
+  stage.addEventListener("click", (e) => { if (e.target.closest(".frame svg")) $("shuffle").click(); });
+
+  $("shuffle").addEventListener("click", () => {
+    const d = $("shuffle");
+    d.classList.remove("rolling"); void d.offsetWidth; d.classList.add("rolling");
+    const pool = SURPRISE.filter(w => w !== current?.title);
+    const w = pool[Math.floor(Math.random() * pool.length)];
+    q.value = w; syncReady();
+    setTimeout(() => search(w), reduceMotion ? 0 : 450);
+  });
+  $("home").addEventListener("click", (e) => {
+    e.preventDefault(); ++token; q.value = "";
+    try { history.replaceState(null, "", location.pathname + location.search); } catch {}
+    document.title = "etyms";
+    showFoyer();
+  });
+  document.addEventListener("keydown", (e) => {
+    const a = document.activeElement;
+    const typing = a?.tagName === "INPUT";
+    if (e.key === "/" && !typing) { e.preventDefault(); q.focus(); q.select(); return; }
+    if (typing || !current || e.metaKey || e.ctrlKey || e.altKey || a === ui.line) return;
+    const r = Math.round(mode === "spring" ? target : pos);
+    if (e.key === "ArrowLeft") { e.preventDefault(); dismissHint(); springTo(r - 1, 150); }
+    if (e.key === "ArrowRight") { e.preventDefault(); dismissHint(); springTo(r + 1, 150); }
+  });
+  addEventListener("hashchange", () => {
+    const w = decodeURIComponent(location.hash.slice(1));
+    if (w && (!current || current.title !== w)) { q.value = w; search(w); }
+  });
+
+  renderShelf();
+  setDrawer(store.get(DRAWER, false));
+  tint(1);
+  requestAnimationFrame(frame);
+  // Visitors arrive in the foyer. A shared link (#word) takes them straight to that exhibit.
+  const start = txt(decodeURIComponent(location.hash.slice(1)));
+  if (start) { q.value = start; syncReady(); search(start); }
+  else {
+    showFoyer();
+    if (matchMedia("(pointer: fine)").matches) q.focus({ preventScroll: true });   // desktop: ready to type
+  }
+})();
+</script>
+</body>
+</html>
