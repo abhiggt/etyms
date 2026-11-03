@@ -24,7 +24,7 @@
   --font-word: "Instrument Serif", "Noto Serif", Georgia, serif;
   --font-text: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --c1: 196, 214, 255; --c2: 244, 228, 198; --a: .16;
+  --c1: 196, 214, 255; --c2: 244, 228, 198; --a: .26;
   --x1: 50%; --y1: 0%; --x2: 40%; --y2: 0%; --x3: 60%;
   color-scheme: dark;
 }
@@ -73,14 +73,19 @@ button { font: inherit; color: inherit; }
   position: relative; display: grid; place-items: center;
   width: min(560px, 100%); aspect-ratio: 404 / 296; height: auto;
 }
-.frame img {
+.frame > img {
   grid-area: 1 / 1; max-height: 100%; max-width: min(100%, 520px); object-fit: contain; display: block;
   border: 1px solid rgba(255, 255, 255, .08);
   box-shadow: 0 30px 60px rgba(0, 0, 0, .9), 0 0 0 6px rgba(255, 255, 255, .015);
   opacity: 0; transition: opacity .9s ease;
 }
-.frame img.shown, .frame svg.shown { opacity: 1; }
-.frame svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; cursor: pointer; opacity: 0; transition: opacity .9s ease; }
+.frame > img.shown { opacity: 1; }
+.desk { position: absolute; inset: 0; cursor: pointer; opacity: 0; transition: opacity .9s ease; -webkit-tap-highlight-color: transparent; }
+.desk.shown { opacity: 1; }
+.desk > img, .desk > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; -webkit-user-drag: none; user-select: none; }
+.desk .mover { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; pointer-events: none; }
+.desk .mover img { position: absolute; display: block; max-width: none; -webkit-user-drag: none; }
+.desk .drop { position: absolute; border-radius: 50%; background: #050403; opacity: 0; transform-origin: 50% 50%; }
 .frame .wait { grid-area: 1 / 1; width: 60%; max-width: 300px; height: 80%; border: 1px solid var(--hair); background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.04) 50%, transparent 70%) 0 0 / 300% 100%; animation: sheen 1.6s linear infinite; }
 @keyframes sheen { from { background-position: 100% 0; } to { background-position: -50% 0; } }
 .label-card { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; max-width: 52ch; min-height: 60px; }
@@ -108,14 +113,17 @@ button { font: inherit; color: inherit; }
 }
 .aura {
   position: absolute; left: -15%; right: -15%; top: -30%; height: 85%; z-index: -1; pointer-events: none;
-  filter: blur(36px);
   -webkit-mask-image: linear-gradient(#000 35%, transparent);
   mask-image: linear-gradient(#000 35%, transparent);
-  background:
-    radial-gradient(28% 50% at var(--x1) var(--y1), rgba(var(--c1), var(--a)), transparent 70%),
-    radial-gradient(24% 44% at var(--x2) var(--y2), rgba(var(--c2), calc(var(--a) * .85)), transparent 70%),
-    radial-gradient(40% 46% at var(--x3) 22%, rgba(var(--c1), calc(var(--a) * .55)), transparent 72%);
+  opacity: calc(.6 * var(--glow, 1)); transition: opacity .6s ease;
 }
+.aura i { position: absolute; display: block; border-radius: 50%; will-change: transform; }
+.aura .l1 { left: 22%; top: 8%; width: 56%; height: 70%; background: radial-gradient(closest-side, rgba(var(--c1), var(--a)), transparent); animation: drift1 19s ease-in-out infinite alternate; }
+.aura .l2 { left: 12%; top: 14%; width: 48%; height: 62%; background: radial-gradient(closest-side, rgba(var(--c2), calc(var(--a) * .85)), transparent); animation: drift2 23s ease-in-out infinite alternate; }
+.aura .l3 { left: 30%; top: 30%; width: 80%; height: 66%; background: radial-gradient(closest-side, rgba(var(--c1), calc(var(--a) * .55)), transparent); animation: drift3 29s ease-in-out infinite alternate; }
+@keyframes drift1 { from { transform: translate3d(-14%, -4%, 0); } to { transform: translate3d(16%, 6%, 0); } }
+@keyframes drift2 { from { transform: translate3d(28%, 4%, 0); } to { transform: translate3d(-10%, -6%, 0); } }
+@keyframes drift3 { from { transform: translate3d(-18%, 0, 0); } to { transform: translate3d(6%, -8%, 0); } }
 .case::after {
   content: ""; position: absolute; left: 10%; right: 10%; top: 0; height: 1px; z-index: -1;
   background: linear-gradient(90deg, transparent, rgba(var(--c1), calc(var(--a) * 3)), transparent);
@@ -126,7 +134,7 @@ button { font: inherit; color: inherit; }
 .search label { position: absolute; left: -9999px; }
 .search input {
   width: 100%; border: 1px solid var(--hair); outline: none; border-radius: 999px;
-  background: rgba(0, 0, 0, .5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, .6);
   color: var(--text); font: 400 17px/1 var(--font-text); text-align: center; padding: 17px 64px;
   transition: border-color .2s;
 }
@@ -315,7 +323,7 @@ button { font: inherit; color: inherit; }
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-@media (max-width: 440px) { .search input { padding-right: 52px; padding-left: 50px; font-size: 15px; } }
+@media (max-width: 440px) { .search input { padding-right: 52px; padding-left: 50px; font-size: 16px; } }
 @media (max-width: 520px) { .mark b { font-size: 9px; letter-spacing: .04em; } .tiles span { width: 40px; height: 40px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 </style>
@@ -328,7 +336,7 @@ button { font: inherit; color: inherit; }
 </a>
 
 <main class="case" id="case">
-  <div class="aura" aria-hidden="true"></div>
+  <div class="aura" id="aura" aria-hidden="true"><i class="l1"></i><i class="l2"></i><i class="l3"></i></div>
   <form class="search" id="searchForm" autocomplete="off">
     <label for="q">Find a word</label>
     <input id="q" type="search" placeholder="write a word, or “wordle”" spellcheck="false" autocapitalize="off" enterkeyhint="search">
@@ -363,7 +371,7 @@ button { font: inherit; color: inherit; }
     "https://raw.githubusercontent.com/ramkrishna3245/wordle-answers/main/data/wordle-answers.json",
     "https://cdn.jsdelivr.net/gh/ramkrishna3245/wordle-answers@main/data/wordle-answers.json"
   ];
-  const SAVED = "etyms.saved.v3", CACHE = "etyms.cache.v4", DRAWER = "etyms.drawer",
+  const SAVED = "etyms.saved.v3", CACHE = "etyms.cache.v5", DRAWER = "etyms.drawer",
         RECENT = "etyms.recent", HINTED = "etyms.hinted";
 
   const SURPRISE = ["salary","muscle","nice","silly","clue","disaster","companion","quarantine","sabotage","robot",
@@ -432,6 +440,8 @@ button { font: inherit; color: inherit; }
     for (const kid of kids.flat()) if (kid !== null && kid !== undefined && kid !== false && kid !== "") el.append(kid);
     return el;
   };
+  // replaceChildren() prints null and undefined as text, so empty slots are dropped here first
+  const fill = (el, ...kids) => el.replaceChildren(...kids.flat().filter(k => k !== null && k !== undefined && k !== false && k !== ""));
   const store = {
     get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } }
@@ -587,19 +597,20 @@ button { font: inherit; color: inherit; }
   }
   const QUILL = quillBarbs();
 
-  function writingDesk() {
-    const id = "d" + (++deskId);
-    const holder = document.createElement("div");
-    holder.innerHTML = `
-<svg xmlns="${SVGNS}" viewBox="34 -26 404 296" role="img" aria-label="A feather quill writing the letter e in the scripts of the world, beside an inkwell">
-  <defs>
-    <linearGradient id="${id}pap" x1="0" y1="0" x2="1" y2="1">
+  /* The desk is built in layers. Everything that never changes (the papyrus with its grain, the inkwell,
+     the feather) is drawn once as a picture; only the ink and the quill's position change while it writes.
+     Recomputing SVG filters on every frame is what phones can't afford; moving a finished picture is cheap. */
+  const VB = { x: 34, y: -26, w: 404, h: 296 };
+  const Q_VB = { x: -6, y: -48, w: 334, h: 80 };     // the quill picture, nib at (0, 0)
+  const SH_VB = { x: -14, y: -34, w: 340, h: 60 };   // its shadow
+  const DESK_DEFS = `<defs>
+    <linearGradient id="pap" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f4e6c2"/><stop offset=".5" stop-color="#ead6a6"/><stop offset="1" stop-color="#d9bd86"/>
     </linearGradient>
-    <linearGradient id="${id}pap2" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="pap2" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#d9c08a"/><stop offset="1" stop-color="#b8975e"/>
     </linearGradient>
-    <filter id="${id}papyrus" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB">
+    <filter id="papyrus" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB">
       <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="4" result="edge"/>
       <feDisplacementMap in="SourceGraphic" in2="edge" scale="6" xChannelSelector="R" yChannelSelector="G" result="sheet"/>
       <feTurbulence type="fractalNoise" baseFrequency="0.006 0.3" numOctaves="2" seed="11" result="fh"/>
@@ -618,55 +629,61 @@ button { font: inherit; color: inherit; }
       <feColorMatrix in="rim" type="matrix" values="0 0 0 0 .3  0 0 0 0 .18  0 0 0 0 .06  0 0 0 .62 0" result="burnish"/>
       <feMerge><feMergeNode in="lit"/><feMergeNode in="stains"/><feMergeNode in="burnish"/></feMerge>
     </filter>
-    <filter id="${id}soft" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="8"/></filter>
-    <filter id="${id}blur" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="3.2"/></filter>
-    <filter id="${id}bleed" x="-5%" y="-5%" width="110%" height="110%">
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="blur" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="3.2"/></filter>
+    <filter id="bleed" x="-5%" y="-5%" width="110%" height="110%">
       <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" seed="5" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="0.9" xChannelSelector="R" yChannelSelector="G" result="d"/>
       <feGaussianBlur in="d" stdDeviation=".14"/>
     </filter>
-    <filter id="${id}fiber" x="-5%" y="-10%" width="110%" height="120%">
+    <filter id="fiber" x="-5%" y="-10%" width="110%" height="120%">
       <feTurbulence type="fractalNoise" baseFrequency=".9 .25" numOctaves="2" seed="8" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="2" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
-    <linearGradient id="${id}vane" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="vane" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#d8cbb0"/><stop offset=".3" stop-color="#efe7d6"/><stop offset=".75" stop-color="#e9dec7"/><stop offset="1" stop-color="#c9b48d"/>
     </linearGradient>
-    <linearGradient id="${id}upShade" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="upShade" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".7" stop-color="#7d6a4c" stop-opacity="0"/><stop offset="1" stop-color="#7d6a4c" stop-opacity=".3"/>
     </linearGradient>
-    <linearGradient id="${id}lowShade" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="lowShade" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#5e4e36" stop-opacity=".38"/><stop offset=".5" stop-color="#5e4e36" stop-opacity=".2"/><stop offset="1" stop-color="#5e4e36" stop-opacity=".1"/>
     </linearGradient>
-    <linearGradient id="${id}horn" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="horn" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#f1e6cd"/><stop offset=".5" stop-color="#b3a07a"/><stop offset="1" stop-color="#ddcfae"/>
     </linearGradient>
-    <linearGradient id="${id}glassFront" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="glassFront" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#20231f"/><stop offset=".18" stop-color="#3b403a"/><stop offset=".3" stop-color="#121411"/>
       <stop offset=".78" stop-color="#0a0b0a"/><stop offset="1" stop-color="#1b1e1a"/>
     </linearGradient>
-    <linearGradient id="${id}glassSide" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="glassSide" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#2d322c"/><stop offset="1" stop-color="#0d0f0d"/>
     </linearGradient>
-    <linearGradient id="${id}glassTop" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="glassTop" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#5a6159"/><stop offset="1" stop-color="#1a1d19"/>
     </linearGradient>
-    <linearGradient id="${id}brass" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#5a4320"/><stop offset=".2" stop-color="#a88450"/><stop offset=".38" stop-color="#d6bd8a"/>
       <stop offset=".55" stop-color="#8c6a38"/><stop offset=".85" stop-color="#b8975f"/><stop offset="1" stop-color="#4d3a1c"/>
     </linearGradient>
-  </defs>
-
-  <!-- a second sheet beneath, for depth -->
+  </defs>`;
+  let deskArt = null;
+  function deskImages() {
+    if (deskArt) return deskArt;
+    const svgURL = (inner, vb) => URL.createObjectURL(new Blob([
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb.x} ${vb.y} ${vb.w} ${vb.h}" width="${vb.w * 3}" height="${vb.h * 3}">${DESK_DEFS}${inner}</svg>`
+    ], { type: "image/svg+xml" }));
+    deskArt = {
+      back: svgURL(`  <!-- a second sheet beneath, for depth -->
   <g transform="rotate(-8.5 200 140)">
-    <rect x="70" y="26" width="246" height="232" rx="2" fill="#000" opacity=".7" filter="url(#${id}soft)" transform="translate(3 9)"/>
-    <rect x="66" y="20" width="246" height="232" rx="2" fill="url(#${id}pap2)" filter="url(#${id}papyrus)"/>
+    <rect x="70" y="26" width="246" height="232" rx="2" fill="#000" opacity=".7" filter="url(#soft)" transform="translate(3 9)"/>
+    <rect x="66" y="20" width="246" height="232" rx="2" fill="url(#pap2)" filter="url(#papyrus)"/>
   </g>
   <!-- the sheet being written on, a little askew -->
   <g transform="rotate(-3.5 190 135)">
-    <rect x="62" y="22" width="250" height="236" rx="3" fill="#000" opacity=".8" filter="url(#${id}soft)" transform="translate(5 11)"/>
-    <g filter="url(#${id}papyrus)">
-      <rect x="58" y="14" width="250" height="236" rx="2" fill="url(#${id}pap)"/>
+    <rect x="62" y="22" width="250" height="236" rx="3" fill="#000" opacity=".8" filter="url(#soft)" transform="translate(5 11)"/>
+    <g filter="url(#papyrus)">
+      <rect x="58" y="14" width="250" height="236" rx="2" fill="url(#pap)"/>
       <g opacity=".8">
         <rect x="60" y="30" width="246" height="26" fill="#b08a4c" opacity=".14"/>
         <rect x="60" y="82" width="246" height="22" fill="#fff4d8" opacity=".22"/>
@@ -678,53 +695,27 @@ button { font: inherit; color: inherit; }
         <rect x="262" y="16" width="18" height="232" fill="#fff4d8" opacity=".12"/>
       </g>
     </g>
-    <g class="ink" transform="translate(78 28) scale(2.1)" filter="url(#${id}bleed)"></g>
   </g>
-
   <!-- the inkwell: cut glass with a brass collar (back half, behind the quill) -->
   <g transform="translate(352 220)">
-    <ellipse cx="3" cy="36" rx="38" ry="6" fill="#000" opacity=".85" filter="url(#${id}blur)"/>
+    <ellipse cx="3" cy="36" rx="38" ry="6" fill="#000" opacity=".85" filter="url(#blur)"/>
     <ellipse cx="0" cy="-8" rx="11" ry="3" fill="#6f5530"/>
     <ellipse cx="0" cy="-7.8" rx="8.6" ry="2.2" fill="#020202"/>
     <ellipse cx="2.6" cy="-7.4" rx="3.2" ry=".55" fill="#262a26"/>
   </g>
 
-  <!-- the quill's shadow on the desk -->
-  <g class="shadow" filter="url(#${id}blur)">
-    <path d="M0 0 L66 -3 L300 -14 L310 0 L300 10 L66 3 Z" fill="#000"/>
-  </g>
-  <!-- the quill -->
-  <g class="quill">
-    <g filter="url(#${id}fiber)">
-      <path d="${QUILL.low}" fill="url(#${id}vane)"/>
-      <path d="${QUILL.low}" fill="url(#${id}lowShade)"/>
-      <path d="${QUILL.up}" fill="url(#${id}vane)"/>
-      <path d="${QUILL.up}" fill="url(#${id}upShade)"/>
-    </g>
-    <path d="${QUILL.band}" stroke="#6b5435" stroke-opacity=".5" stroke-width=".55" fill="none"/>
-    <path d="${QUILL.dark}" stroke="#8d7f66" stroke-opacity=".38" stroke-width=".4" fill="none"/>
-    <path d="${QUILL.light}" stroke="#fffaf0" stroke-opacity=".5" stroke-width=".36" fill="none"/>
-    <path d="${QUILL.fluff}" stroke="#ddd0b6" stroke-opacity=".7" stroke-width=".45" fill="none" stroke-linecap="round"/>
-    <path d="${QUILL.rachis}" fill="#eee5d2"/>
-    <path d="${QUILL.rachis}" fill="none" stroke="#8f8065" stroke-opacity=".55" stroke-width=".35"/>
-    <path d="M0 0 C 4 -0.7, 8 -1.2, 12 -1.5 L62 -2.8 L62 2.8 L12 1.5 C 8 1.2, 4 0.7, 0 0 Z" fill="url(#${id}horn)"/>
-    <path d="M14 -1.1 L60 -2.1" stroke="#fff" stroke-opacity=".4" stroke-width=".45"/>
-    <path d="M0 0 C 4 -0.7, 8 -1.2, 13 -1.5 L13 1.5 C 8 1.2, 4 0.7, 0 0 Z" fill="#0a0806"/>
-    <path d="M1.5 0 L9 0" stroke="#3c342a" stroke-width=".3"/>
-    <circle class="drop" cx="1.6" cy="0.6" r="1.5" fill="#050403" opacity="0"/>
-  </g>
-
-  <!-- the inkwell's front: brass collar, cut-glass shoulders and body, in front of a dipping nib -->
+`, VB),
+      front: svgURL(`  <!-- the inkwell's front: brass collar, cut-glass shoulders and body, in front of a dipping nib -->
   <g transform="translate(352 220)" pointer-events="none">
-    <path d="M-11 -8 A11 3 0 0 0 11 -8 L11 -1 L-11 -1 Z" fill="url(#${id}brass)"/>
+    <path d="M-11 -8 A11 3 0 0 0 11 -8 L11 -1 L-11 -1 Z" fill="url(#brass)"/>
     <path d="M-11 -8 A11 3 0 0 0 11 -8" fill="none" stroke="#e6d3a6" stroke-opacity=".6" stroke-width=".6"/>
     <path d="M-11 -3.6 L11 -3.6" stroke="#3d2d14" stroke-opacity=".5" stroke-width=".5"/>
-    <path d="M-11 -1 L11 -1 L22 5 L-22 5 Z" fill="url(#${id}glassTop)"/>
+    <path d="M-11 -1 L11 -1 L22 5 L-22 5 Z" fill="url(#glassTop)"/>
     <path d="M-22 5 L-28 9 L-11 -1 Z" fill="#3a4038"/>
     <path d="M22 5 L28 9 L11 -1 Z" fill="#151815"/>
-    <path d="M-28 9 L-22 5 L-22 35 L-28 31 Z" fill="url(#${id}glassSide)"/>
+    <path d="M-28 9 L-22 5 L-22 35 L-28 31 Z" fill="url(#glassSide)"/>
     <path d="M28 9 L22 5 L22 35 L28 31 Z" fill="#0b0c0b"/>
-    <rect x="-22" y="5" width="44" height="30" fill="url(#${id}glassFront)"/>
+    <rect x="-22" y="5" width="44" height="30" fill="url(#glassFront)"/>
     <rect x="-22" y="31.5" width="44" height="3.5" fill="#5e665d" opacity=".35"/>
     <path d="M-22 5 L-22 35 M22 5 L22 35 M-22 5 L22 5" stroke="#c9d1c7" stroke-opacity=".22" stroke-width=".55" fill="none"/>
     <path d="M-28 9 L-28 31" stroke="#c9d1c7" stroke-opacity=".14" stroke-width=".5"/>
@@ -732,26 +723,87 @@ button { font: inherit; color: inherit; }
     <path d="M-13.5 9 L-13.5 22" stroke="#fff" stroke-opacity=".12" stroke-width="2.6" stroke-linecap="round"/>
     <path d="M-26 12 L-26 28" stroke="#e8cf9c" stroke-opacity=".14" stroke-width="1.2" stroke-linecap="round"/>
   </g>
-</svg>`;
-    const svg = holder.firstElementChild;
-    const ink = svg.querySelector(".ink"), quill = svg.querySelector(".quill"), shadow = svg.querySelector(".shadow");
-    const drop = svg.querySelector(".drop");
-    // glyph grid → sheet → screen: the sheet is turned, so turn the points with it
+`, VB),
+      quill: svgURL(`  <!-- the quill -->
+  <g>
+    <g filter="url(#fiber)">
+      <path d="${QUILL.low}" fill="url(#vane)"/>
+      <path d="${QUILL.low}" fill="url(#lowShade)"/>
+      <path d="${QUILL.up}" fill="url(#vane)"/>
+      <path d="${QUILL.up}" fill="url(#upShade)"/>
+    </g>
+    <path d="${QUILL.band}" stroke="#6b5435" stroke-opacity=".5" stroke-width=".55" fill="none"/>
+    <path d="${QUILL.dark}" stroke="#8d7f66" stroke-opacity=".38" stroke-width=".4" fill="none"/>
+    <path d="${QUILL.light}" stroke="#fffaf0" stroke-opacity=".5" stroke-width=".36" fill="none"/>
+    <path d="${QUILL.fluff}" stroke="#ddd0b6" stroke-opacity=".7" stroke-width=".45" fill="none" stroke-linecap="round"/>
+    <path d="${QUILL.rachis}" fill="#eee5d2"/>
+    <path d="${QUILL.rachis}" fill="none" stroke="#8f8065" stroke-opacity=".55" stroke-width=".35"/>
+    <path d="M0 0 C 4 -0.7, 8 -1.2, 12 -1.5 L62 -2.8 L62 2.8 L12 1.5 C 8 1.2, 4 0.7, 0 0 Z" fill="url(#horn)"/>
+    <path d="M14 -1.1 L60 -2.1" stroke="#fff" stroke-opacity=".4" stroke-width=".45"/>
+    <path d="M0 0 C 4 -0.7, 8 -1.2, 13 -1.5 L13 1.5 C 8 1.2, 4 0.7, 0 0 Z" fill="#0a0806"/>
+    <path d="M1.5 0 L9 0" stroke="#3c342a" stroke-width=".3"/>
+  </g>
+
+`, Q_VB),
+      shadow: svgURL(`<g filter="url(#blur)"><path d="M0 0 L66 -3 L300 -14 L310 0 L300 10 L66 3 Z" fill="#000"/></g>`, SH_VB)
+    };
+    return deskArt;
+  }
+
+  function writingDesk() {
+    const art = deskImages();
+    const desk = h("div", { class: "desk", role: "img", "aria-label": "A feather quill writing the letter e in the scripts of the world, beside an inkwell" });
+    const img = (src, cls) => { const i = new Image(); i.src = src; i.alt = ""; i.decoding = "async"; if (cls) i.className = cls; i.draggable = false; return i; };
+    const back = img(art.back), front = img(art.front);
+    const inkSvg = document.createElementNS(SVGNS, "svg");
+    inkSvg.setAttribute("viewBox", `${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
+    // the ink's soaked-in edge is a filter too: worth it on a computer, skipped on phones
+    const richInk = matchMedia("(pointer: fine) and (min-width: 700px)").matches;
+    inkSvg.innerHTML = `<defs>    <filter id="bleed" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" seed="5" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="0.9" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation=".14"/>
+    </filter></defs>
+      <g transform="rotate(-3.5 190 135)"><g class="ink" transform="translate(78 28) scale(2.1)"${richInk ? ' filter="url(#bleed)"' : ""}></g></g>`;
+    const shadowW = h("div", { class: "mover" }), quillW = h("div", { class: "mover" });
+    const shadowImg = img(art.shadow), quillImg = img(art.quill);
+    const drop = h("div", { class: "drop" });
+    shadowW.append(shadowImg); quillW.append(quillImg, drop);
+    desk.append(back, inkSvg, shadowW, quillW, front);
+    const ink = inkSvg.querySelector(".ink");
+
+    // glyph grid → sheet → desk: the sheet is turned, so turn the points with it
     const GX = 78, GY = 28, S = 2.1, ROT = -3.5 * Math.PI / 180, CX = 190, CY = 135;
     const ANGLE = -40, SCALE = 0.56;
     const WELL = { x: 352, y: 212 };
     const REST = { x: 300, y: 150 };
     const NIB = [0, 0.6, 1.2, 1.8];       // offsets along 45°: the cut quill's thick and thin
 
+    let u = 1;                              // screen pixels per desk unit
+    function size() {
+      u = (desk.clientWidth || 1) / VB.w;
+      const k = SCALE * u;
+      Object.assign(quillImg.style, { left: `${Q_VB.x * k}px`, top: `${Q_VB.y * k}px`, width: `${Q_VB.w * k}px`, height: `${Q_VB.h * k}px` });
+      Object.assign(shadowImg.style, { left: `${SH_VB.x * k}px`, top: `${SH_VB.y * k}px`, width: `${SH_VB.w * k}px`, height: `${SH_VB.h * k}px` });
+      Object.assign(drop.style, { left: `${0 * k}px`, top: `${-1 * k}px`, width: `${3.2 * k}px`, height: `${3.2 * k}px` });
+      place(at.x, at.y, lastLift);
+    }
     const toPage = (p) => {
       const x = GX + p.x * S, y = GY + p.y * S, dx = x - CX, dy = y - CY;
       return { x: CX + dx * Math.cos(ROT) - dy * Math.sin(ROT), y: CY + dx * Math.sin(ROT) + dy * Math.cos(ROT) };
     };
+    let lastLift = 0;
     function place(x, y, lift) {
-      const sc = SCALE * (1 + lift * 0.06);
-      quill.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${(ANGLE - lift * 3).toFixed(2)}) scale(${sc.toFixed(3)})`);
-      shadow.setAttribute("transform", `translate(${(x + 8 + lift * 12).toFixed(2)} ${(y + 10 + lift * 14).toFixed(2)}) rotate(${ANGLE}) scale(${SCALE})`);
-      shadow.setAttribute("opacity", (0.3 - lift * 0.12).toFixed(3));
+      lastLift = lift;
+      const px = (x - VB.x) * u, py = (y - VB.y) * u;
+      quillW.style.transform = `translate3d(${px.toFixed(2)}px, ${py.toFixed(2)}px, 0) rotate(${(ANGLE - lift * 3).toFixed(2)}deg) scale(${(1 + lift * 0.06).toFixed(3)})`;
+      const sx = (x + 8 + lift * 12 - VB.x) * u, sy = (y + 10 + lift * 14 - VB.y) * u;
+      shadowW.style.transform = `translate3d(${sx.toFixed(2)}px, ${sy.toFixed(2)}px, 0) rotate(${ANGLE}deg)`;
+      shadowW.style.opacity = (0.3 - lift * 0.12).toFixed(3);
+    }
+    function setDrop(r, op) {
+      drop.style.opacity = op.toFixed(2);
+      drop.style.transform = `scale(${(r / 1.6).toFixed(3)})`;
     }
 
     let gi = 0, plan = [], step = 0, t = 0, last = 0, from = { ...REST }, at = { ...REST }, strokes = [], inkLeft = 0;
@@ -810,7 +862,7 @@ button { font: inherit; color: inherit; }
     const ease = (x) => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
     let started = false;
     function tick(now) {
-      if (!svg.isConnected) { started = false; return; }
+      if (!desk.isConnected) { started = false; return; }
       const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
       const p = plan[step];
       t += dt;
@@ -824,7 +876,7 @@ button { font: inherit; color: inherit; }
         const d = Math.max(0, Math.sin(k * Math.PI * 2)) * 9 + Math.max(0, Math.sin(k * Math.PI * 4)) * 2.5;
         at = { x: WELL.x, y: WELL.y + d };
         place(at.x, at.y, 0.2);
-        if (k > 0.3) { inkLeft = 1; drop.setAttribute("opacity", "1"); drop.setAttribute("r", "1.6"); }
+        if (k > 0.3) { inkLeft = 1; setDrop(1.6, 1); }
       } else if (p.type === "draw") {
         const s = strokes[p.i], len = s.L * k;
         s.paths.forEach(path => { path.style.strokeDashoffset = String(s.L - len); });
@@ -832,8 +884,7 @@ button { font: inherit; color: inherit; }
         if (k > 0) s.pool.setAttribute("opacity", "1");
         if (k >= 1) s.wet.style.opacity = "0";
         inkLeft = Math.max(0, inkLeft - dt * 0.55);
-        drop.setAttribute("r", (0.5 + inkLeft * 1.1).toFixed(2));
-        drop.setAttribute("opacity", Math.min(1, inkLeft * 1.6).toFixed(2));
+        setDrop(0.5 + inkLeft * 1.1, Math.min(1, inkLeft * 1.6));
         at = toPage(s.base.getPointAtLength(len));
         place(at.x, at.y, 0);
       } else if (p.type === "fade") {
@@ -846,16 +897,22 @@ button { font: inherit; color: inherit; }
       }
       requestAnimationFrame(tick);
     }
-    svg.start = () => {
+    desk.start = async () => {
       if (started) return;
       started = true;
+      // wait until every layer is painted once, so the scene appears whole
+      await Promise.all([back, front, quillImg, shadowImg].map(i => i.decode ? i.decode().catch(() => {}) : null));
+      if (!desk.isConnected) { started = false; return; }
+      if (typeof ResizeObserver === "function") new ResizeObserver(size).observe(desk);
+      size();
       loadGlyph();
       place(REST.x, REST.y, 0);
+      desk.classList.add("shown");
       if (reduceMotion) {
         const showAll = () => strokes.forEach(s => { s.paths.forEach(p => { p.style.strokeDashoffset = "0"; }); s.pool.setAttribute("opacity", "1"); s.wet.style.opacity = "0"; });
         showAll();
         const cycle = setInterval(() => {
-          if (!svg.isConnected) return clearInterval(cycle);
+          if (!desk.isConnected) return clearInterval(cycle);
           gi = (gi + 1) % GLYPHS.length; loadGlyph(); showAll();
         }, 3500);
         return;
@@ -863,24 +920,23 @@ button { font: inherit; color: inherit; }
       last = 0;
       requestAnimationFrame(tick);
     };
-    return svg;
+    return desk;
   }
 
   let foyerToken = 0, foyerEls = null;
   function hangDesk() {
     const { frame } = foyerEls;
-    if (frame.querySelector("svg.shown") && !frame.querySelector("img")) return;
+    if (frame.querySelector(".desk") && !frame.querySelector(":scope > img")) return;
     const desk = writingDesk();
     [...frame.children].forEach(o => { o.classList.remove("shown"); setTimeout(() => o.remove(), 900); });
     frame.append(desk);
     desk.start();
-    requestAnimationFrame(() => desk.classList.add("shown"));
   }
   function showFoyer() {
     current = null; tint(0.72);
     const frame = h("div", { class: "frame" });
     foyerEls = { frame };
-    stage.replaceChildren(h("div", { class: "foyer" }, frame));
+    fill(stage, h("div", { class: "foyer" }, frame));
     const v = $("q").value.trim();
     if (v.length >= 3) hangPainting(v); else hangDesk();
   }
@@ -915,11 +971,28 @@ button { font: inherit; color: inherit; }
     memo.set(key, entry);
     store.set(CACHE, Object.fromEntries([...memo.entries()].slice(-60)));
   }
+  // Mobile connections stall more often than desktop ones, so every request has a time limit,
+  // one retry, and a second address (Wiktionary's mobile domain serves the same API).
+  const API_HOSTS = [API, "https://en.m.wiktionary.org/w/api.php"];
+  async function getJSON(url, ms) {
+    const ctrl = typeof AbortController === "function" ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), ms) : null;
+    try {
+      const res = await fetch(url, ctrl ? { signal: ctrl.signal } : undefined);
+      if (!res.ok) throw new Error(`Wiktionary answered ${res.status}`);
+      return await res.json();
+    } catch (e) {
+      throw new Error(e && e.name === "AbortError" ? "Wiktionary took too long to answer" : (e && e.message) || "network error");
+    } finally { if (timer) clearTimeout(timer); }
+  }
   async function api(params) {
     const qs = new URLSearchParams({ format: "json", formatversion: "2", origin: "*", ...params });
-    const res = await fetch(`${API}?${qs}`);
-    if (!res.ok) throw new Error("network");
-    return res.json();
+    let lastErr;
+    for (const [i, host] of [API_HOSTS[0], API_HOSTS[0], API_HOSTS[1]].entries()) {
+      try { return await getJSON(`${host}?${qs}`, i === 0 ? 12000 : 15000); }
+      catch (e) { lastErr = e; }
+    }
+    throw lastErr;
   }
   function lookup(input) {
     const raw = input.trim(), key = raw.toLowerCase();
@@ -949,47 +1022,65 @@ button { font: inherit; color: inherit; }
     if (/^H[1-6]$/.test(el.tagName)) return el;
     return null;
   }
+  // Wiktionary sends its desktop layout (headings and paragraphs side by side) or, to phones, its
+  // mobile layout (each section wrapped in its own container). Walking the page in reading order,
+  // and keeping track of the last heading passed, reads both the same way.
   function parseEntry(html, title) {
     const doc = new DOMParser().parseFromString(html, "text/html");
-    const english = doc.getElementById("English");
-    let el = english ? (english.closest(".mw-heading") || english).nextElementSibling
-                     : (doc.querySelector(".mw-parser-output") || doc.body).firstElementChild;
+    const root = doc.querySelector(".mw-parser-output") || doc.body;
+    const isEnglish = (hd) => hd.id === "English" || !!hd.querySelector("#English") || /^English$/.test(headingText(hd));
+    let inEnglish = !root.querySelector("#English, h2");   // a section-only answer may have no language heading
+    let section = "", etyDone = false, pos = "", def = "", ipa = "";
     const etyParas = [];
-    let section = "", etyDone = false, pos = "", def = "";
-    while (el) {
-      const hd = headingOf(el);
-      if (hd) {
-        if (hd.tagName === "H2") break;
-        section = (hd.textContent || "").trim();
-        if (/^Etymology/i.test(section) && etyParas.length) etyDone = true;
-      } else {
-        if (/^Etymology/i.test(section) && !etyDone && el.tagName === "P" && el.textContent.trim()) etyParas.push(el);
-        if (!def && POS.test(section) && el.tagName === "OL") {
-          const li = el.querySelector(":scope > li");
-          if (li) {
-            const c = li.cloneNode(true);
-            c.querySelectorAll("ul, ol, dl, sup, .HQToggle, .nyms, .citation-whole, style").forEach(n => n.remove());
-            def = c.textContent.split("\n")[0].replace(/\s+/g, " ").trim();
-            pos = section.toLowerCase();
-          }
+    const walker = doc.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+    let node;
+    while ((node = walker.nextNode())) {
+      const tag = node.tagName;
+      if (/^H[1-6]$/.test(tag)) {
+        if (tag === "H2" || tag === "H1") {
+          if (isEnglish(node)) { inEnglish = true; section = ""; continue; }
+          if (inEnglish) break;                  // the next language starts: English is done
+          continue;
+        }
+        if (!inEnglish) continue;
+        const name = headingText(node);
+        if (/^Etymology/i.test(name) && etyParas.length) etyDone = true;   // only the first etymology
+        section = name;
+        continue;
+      }
+      if (!inEnglish) continue;
+      if (!ipa && node.classList.contains("IPA")) ipa = node.textContent.trim();
+      if (tag === "P" && /^Etymology/i.test(section) && !etyDone && node.textContent.trim() && !node.closest("li, table, dl")) {
+        etyParas.push(node);
+      }
+      if (tag === "OL" && !def && POS.test(section)) {
+        const li = node.querySelector(":scope > li");
+        if (li) {
+          const c = li.cloneNode(true);
+          c.querySelectorAll("ul, ol, dl, sup, .HQToggle, .nyms, .citation-whole, style").forEach(n => n.remove());
+          def = c.textContent.split("\n")[0].replace(/\s+/g, " ").trim();
+          pos = section.toLowerCase();
         }
       }
-      el = el.nextElementSibling;
     }
-    const ipaEl = doc.querySelector(".IPA");
     etyParas.forEach(p => p.querySelectorAll("sup.reference, .mw-ref, style").forEach(n => n.remove()));
     const prose = etyParas.map(p => p.textContent).join(" ").replace(/\s+/g, " ").replace(/\s([,.;:])/g, "$1").trim();
     const { chain, kin } = readChain(etyParas);
     const now = { lang: "English", term: title, tr: "", gloss: "" };
     const stages = [...chain.reverse(), now].map(s => ({ ...s, era: ERAS[s.lang] || "" }));
-    return { title, stages, prose, kin, ipa: ipaEl ? ipaEl.textContent.trim() : "", pos, def };
+    return { title, stages, prose, kin, ipa, pos, def };
+  }
+  function headingText(hd) {
+    const c = hd.cloneNode(true);
+    c.querySelectorAll(".mw-editsection, .mf-section-toggle, .indicator, .mw-headline-number").forEach(n => n.remove());
+    return (c.textContent || "").replace(/\[edit\]/gi, "").replace(/\s+/g, " ").trim();
   }
   const STOP = /\b(cognate|cognates|compare|cf\.|doublet|related to|akin to|see also)\b/i;
   function readChain(paras) {
     const chain = [], kin = [];
     let pending = null, mode = "chain";
     for (const p of paras) {
-      const walker = document.createTreeWalker(p, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+      const walker = (p.ownerDocument || document).createTreeWalker(p, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
       let node;
       while ((node = walker.nextNode())) {
         if (node.nodeType === 3) { if (mode === "chain" && !pending && STOP.test(node.nodeValue)) mode = "kin"; continue; }
@@ -1035,10 +1126,16 @@ button { font: inherit; color: inherit; }
     if (!current) return;
     target = Math.max(0, Math.min(maxPos(), Math.round(i)));
     k = stiffness; mode = "spring";
-    if (reduceMotion) { pos = target; vel = 0; mode = "idle"; paint(); }
+    if (reduceMotion) { pos = target; vel = 0; mode = "idle"; paint(); return; }
+    kick();
   }
 
-  let lastFrame = performance.now();
+  let lastFrame = 0, looping = false;
+  const aura = $("aura");
+  function kick() {
+    if (looping) return;
+    looping = true; lastFrame = performance.now();
+    }
   function frame(now) {
     const dt = Math.min(0.033, (now - lastFrame) / 1000); lastFrame = now;
     if (current && mode === "coast") {
@@ -1054,19 +1151,10 @@ button { font: inherit; color: inherit; }
       if (Math.abs(target - pos) < 0.0008 && Math.abs(vel) < 0.01) { pos = target; vel = 0; mode = "idle"; }
     }
     if (current && mode !== "idle") paint();
-    const speed = Math.min(6, Math.abs(vel));
-    phase += dt * (0.18 + speed * 0.55);
-    flowLight(speed);
-    requestAnimationFrame(frame);
-  }
-  function flowLight(speed) {
-    const s = caseEl.style, p = reduceMotion ? 0 : phase;
-    s.setProperty("--x1", (50 + 16 * Math.sin(p * 0.9)).toFixed(2) + "%");
-    s.setProperty("--y1", (2 + 8 * Math.sin(p * 1.3 + 1)).toFixed(2) + "%");
-    s.setProperty("--x2", (50 + 26 * Math.sin(p * 0.6 + 2.2)).toFixed(2) + "%");
-    s.setProperty("--y2", (6 + 7 * Math.cos(p * 1.1)).toFixed(2) + "%");
-    s.setProperty("--x3", (50 + 12 * Math.cos(p * 0.4 + 0.5)).toFixed(2) + "%");
-    s.setProperty("--a", (0.15 + Math.min(0.16, speed * 0.05)).toFixed(3));
+    // travelling makes the light in the case a little brighter
+    aura.style.setProperty("--glow", (1 + Math.min(0.66, Math.abs(vel) * 0.25)).toFixed(2));
+    if (current && (mode === "coast" || mode === "spring")) requestAnimationFrame(frame);
+    else { looping = false; aura.style.setProperty("--glow", "1"); }
   }
   function tint(t) {
     const [r, g, b] = sample(LIGHT, t), [r2, g2, b2] = sample(LIGHT, Math.min(1, t + 0.22));
@@ -1111,9 +1199,15 @@ button { font: inherit; color: inherit; }
       vel = t1 > t0 ? ((p1 - p0) / (t1 - t0)) * 1000 : 0;
       vel = Math.max(-14, Math.min(14, vel));
       mode = "coast";
+      kick();
     };
     el.addEventListener("pointerup", end);
-    el.addEventListener("pointercancel", end);
+    el.addEventListener("pointercancel", () => {
+      if (!drag || drag.el !== el) return;
+      drag = null;
+      el.classList.remove("dragging"); ui.line?.classList.remove("dragging");
+      springTo(pos, 140);
+    });
   }
 
   /* ======================= first-visit hint ======================= */
@@ -1132,9 +1226,11 @@ button { font: inherit; color: inherit; }
     else el.append(term);
     el.style.setProperty("--len", Math.max(3, [...term].length));
   }
-  function showMessage(msg, actions = []) {
+  function showMessage(msg, actions = [], detail = "") {
     current = null; tint(1);
-    stage.replaceChildren(h("p", { class: "status" }, msg), actions.length ? h("div", { class: "actions" }, actions) : null);
+    fill(stage, h("p", { class: "status" }, msg),
+      actions.length ? h("div", { class: "actions" }, actions) : null,
+      detail ? h("p", { class: "credit" }, `Details: ${detail}`) : null);
   }
 
   const ICON_SAVE = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M4 2.5h8v11l-4-2.8-4 2.8z"/></svg>';
@@ -1205,7 +1301,7 @@ button { font: inherit; color: inherit; }
       iconBtn(ICON_SAVE, "Save this journey", toggleSave, "saveBtn"),
       iconBtn(ICON_DOWN, "Take home a print", () => downloadCard(current)));
 
-    stage.replaceChildren(exhibit, h("div", { class: "placard" }, lang, era, note, acc), travel, actions, plaque);
+    fill(stage, exhibit, h("div", { class: "placard" }, lang, era, note, acc), travel, actions, plaque);
     requestAnimationFrame(() => { more.hidden = prose.scrollHeight <= prose.clientHeight + 2; });
 
     ui = { la, lb, lang, era, note, acc, thumb, trail, line, hint, a: -1, b: -1 };
@@ -1364,7 +1460,7 @@ button { font: inherit; color: inherit; }
       buttons.forEach(b => { b.disabled = true; b.setAttribute("aria-pressed", String(b === e.currentTarget)); });
       onGuess(f, verdict);
     } }, f));
-    stage.replaceChildren(
+    fill(stage, 
       h("div", { class: "exhibit pending" }, w),
       h("div", { class: "dig" },
         h("div", { class: "progress", role: "progressbar", "aria-label": "Searching the archive" }),
@@ -1427,18 +1523,19 @@ button { font: inherit; color: inherit; }
       if (guess && verdictEl) {
         const fam = origins(entry);
         const right = fam.includes(guess);
-        verdictEl.replaceChildren(fam.length ? (right ? "A keen eye." : "Not quite, but a fair guess.") : "Even the curators aren't sure.",
+        fill(verdictEl, fam.length ? (right ? "A keen eye." : "Not quite, but a fair guess.") : "Even the curators aren't sure.",
           h("small", {}, fam.length ? fam.join(" → ") : "The records are silent"));
         await wait(1500);
         if (mine !== token) return;
       }
       render(entry);
-    } catch {
+    } catch (err) {
       if (mine !== token) return;
       const s = saved().find(x => x.title.toLowerCase() === key);
       if (s) return render(s);
       showMessage("The archive doors won't open right now. Check your connection and try again.",
-        [h("button", { class: "btn", type: "button", onclick: () => search(q) }, "Try again")]);
+        [h("button", { class: "btn", type: "button", onclick: () => search(q) }, "Try again")],
+        (err && err.message) || String(err));
     }
   }
 
@@ -1464,7 +1561,7 @@ button { font: inherit; color: inherit; }
     const mine = ++token;
     $("q").value = "";
     current = null; tint(0.7);
-    stage.replaceChildren(h("div", { class: "dig" },
+    fill(stage, h("div", { class: "dig" },
       h("div", { class: "progress", role: "progressbar", "aria-label": "Fetching today's Wordle" }),
       h("div", { class: "q" }, "Collecting today's Wordle answer from the loading dock…")));
     const res = await wordleAnswer();
@@ -1472,7 +1569,7 @@ button { font: inherit; color: inherit; }
     if (!res) return showMessage("Today's Wordle answer hasn't come in. Try again in a moment.",
       [h("button", { class: "btn", type: "button", onclick: wordle }, "Try again")]);
     lookup(res.word).catch(() => {});
-    stage.replaceChildren(
+    fill(stage, 
       h("div", { class: "placard" }, h("div", { class: "lang" }, "Today's acquisition"), h("div", { class: "era" }, `Wordle · ${res.date}`)),
       h("div", { class: "tiles", "aria-label": "Hidden five-letter answer" }, [...res.word].map(() => h("span"))),
       h("p", { class: "status" }, res.fresh
@@ -1501,14 +1598,16 @@ button { font: inherit; color: inherit; }
   // the placeholder suggests a word worth trying, a new one every few seconds
   const EXAMPLES = ["salary", "nightmare", "quarantine", "wordle", "muscle", "companion", "disaster", "silly"];
   let ex = 0;
+  const narrow = matchMedia("(max-width: 440px)");
+  const suggest = () => { q.placeholder = narrow.matches ? `try “${EXAMPLES[ex]}”` : `write a word, try “${EXAMPLES[ex]}”`; };
   setInterval(() => {
     if (q.value) return;
     ex = (ex + 1) % EXAMPLES.length;
-    q.placeholder = `write a word, try “${EXAMPLES[ex]}”`;
+    suggest();
   }, 3200);
-  q.placeholder = `write a word, try “${EXAMPLES[0]}”`;
+  suggest();
   // tapping the papyrus is a quiet way in: it picks a word for you
-  stage.addEventListener("click", (e) => { if (e.target.closest(".frame svg")) $("shuffle").click(); });
+  stage.addEventListener("click", (e) => { if (e.target.closest(".frame .desk")) $("shuffle").click(); });
 
   $("shuffle").addEventListener("click", () => {
     const d = $("shuffle");
@@ -1541,7 +1640,6 @@ button { font: inherit; color: inherit; }
   renderShelf();
   setDrawer(store.get(DRAWER, false));
   tint(1);
-  requestAnimationFrame(frame);
   // Visitors arrive in the foyer. A shared link (#word) takes them straight to that exhibit.
   const start = txt(decodeURIComponent(location.hash.slice(1)));
   if (start) { q.value = start; syncReady(); search(start); }
